@@ -7,19 +7,6 @@ import { eq } from 'drizzle-orm';
 import { logger } from '../utils/logger';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 
-declare module 'fastify' {
-  interface FastifyRequest {
-    user: {
-      id: string;
-      email: string;
-      role: typeof user.$inferSelect.role;
-      firstName: string;
-      lastName: string;
-      facultyId: string | null;
-    };
-  }
-}
-
 export async function authenticateRequest(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -42,9 +29,6 @@ export async function authenticateRequest(
         id: user.id,
         email: user.email,
         role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        facultyId: user.facultyId,
       })
       .from(user)
       .where(eq(user.email, decoded.email))

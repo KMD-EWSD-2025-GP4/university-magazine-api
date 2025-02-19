@@ -42,6 +42,8 @@ async function main() {
     await migrate(db, {
       migrationsFolder: './drizzle/migrations',
     });
+
+    // Temporary seeding before faculty API is implemented
     await generateFaculties();
     await app.listen({
       port: env.PORT,
