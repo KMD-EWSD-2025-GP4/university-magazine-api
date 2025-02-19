@@ -102,17 +102,3 @@ The server will start on http://localhost:3001 by default (or the port specified
 | DB_URL     | PostgreSQL connection URL | postgress://postgres:postgres@localhost:5432/university_magazine_db |
 | JWT_SECRET | JWT signing secret        | (Set in .env)                                                    |
 | API_URL    | Base API URL              | http://localhost:3001                                            |
-
-## Docker Support
-
-The project includes Docker configuration for both development and production environments.
-
-To build and run the application in a Docker container:
-
-```bash
-# Build the Docker image
-docker build -t university-magazine-api .
-
-# Run the container
-docker run -p 3001:3001 university-magazine-api
-```
