@@ -2,12 +2,10 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '../../db';
 import { user } from '../../db/schema';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { registerUserBodySchema, loginUserBodySchema } from './user.schema';
-import { logger } from '../../utils/logger';
 import {
-  AppError,
   NotFoundError,
   ValidationError,
   UnauthorizedError,
@@ -130,8 +128,8 @@ export async function loginUser(input: loginUserBodySchema) {
       email: existingUser.email,
       role: existingUser.role,
     },
-    env.JWT_SECRET,
-    { expiresIn: '24h' }, // Longer expiry since we don't have refresh
+    Buffer.from(env.JWT_SECRET),
+    { expiresIn: env.JWT_EXPIRES_IN } as SignOptions,
   );
 
   return {

@@ -1,7 +1,11 @@
 // generate faculties
 
-import { faculty } from '../db/schema';
+import { academicYear, faculty, user } from '../db/schema';
 import { db } from '../db/';
+import bcrypt from 'bcryptjs';
+import { eq } from 'drizzle-orm';
+import { logger } from './logger';
+
 const faculties = [
   {
     name: 'Faculty of Science',
@@ -28,6 +32,108 @@ const faculties = [
 
 export const generateFaculties = async () => {
   faculties.forEach(async (item) => {
+    // check if faculty already exists
+    const facultyExists = await db
+      .select()
+      .from(faculty)
+      .where(eq(faculty.name, item.name));
+    if (facultyExists.length > 0) {
+      return;
+    }
     await db.insert(faculty).values(item);
+  });
+};
+
+export const generateAcademicYears = async () => {
+  const academicYears = [
+    {
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-12-31'),
+      newClosureDate: new Date('2024-06-01'),
+      finalClosureDate: new Date('2024-07-01'),
+    },
+  ];
+  academicYears.forEach(async (item) => {
+    await db.insert(academicYear).values(item);
+  });
+};
+
+export const seedAdminUser = async () => {
+  const adminUser = {
+    email: 'admin@gmail.com',
+    password: 'admin',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'admin' as const,
+  };
+  // check if user already exists
+  const userExists = await db
+    .select()
+    .from(user)
+    .where(eq(user.email, adminUser.email));
+  if (userExists.length > 0) {
+    return;
+  }
+  // get faculty id
+  const adminFaculty = await db
+    .select()
+    .from(faculty)
+    .where(eq(faculty.name, 'Faculty of Science'));
+  // hash password
+  const hashedPassword = await bcrypt.hash(adminUser.password, 10);
+  await db.insert(user).values({
+    ...adminUser,
+    passwordHash: hashedPassword,
+    facultyId: adminFaculty[0].id,
+  });
+};
+
+export const seedStudentUsers = async () => {
+  const studentUsers = [
+    {
+      email: 'student1@gmail.com',
+      password: 'student1',
+      firstName: 'Student',
+      lastName: 'One',
+      role: 'student' as const,
+    },
+    {
+      email: 'student2@gmail.com',
+      password: 'student2',
+      firstName: 'Student',
+      lastName: 'Two',
+      role: 'student' as const,
+    },
+    {
+      email: 'student3@gmail.com',
+      password: 'student3',
+      firstName: 'Student',
+      lastName: 'Three',
+      role: 'student' as const,
+    },
+  ];
+  studentUsers.forEach(async (item) => {
+    // check if user already exists
+    const userExists = await db
+      .select()
+      .from(user)
+      .where(eq(user.email, item.email));
+    if (userExists.length > 0) {
+      return;
+    }
+    // hash password
+    const hashedPassword = await bcrypt.hash(item.password, 10);
+    // get random faculty id
+    const randomNumber = Math.floor(Math.random() * faculties.length);
+    const randomFaculty = await db
+      .select()
+      .from(faculty)
+      .where(eq(faculty.name, faculties[randomNumber].name))
+      .limit(1);
+    await db.insert(user).values({
+      ...item,
+      passwordHash: hashedPassword,
+      facultyId: randomFaculty[0].id,
+    });
   });
 };

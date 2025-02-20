@@ -40,7 +40,7 @@ export const faculty = pgTable(
   'faculties',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
+    name: text('name').notNull().unique(),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
@@ -49,8 +49,8 @@ export const faculty = pgTable(
 
 export const academicYear = pgTable('academic_years', {
   id: uuid('id').primaryKey().defaultRandom(),
-  startDate: date('start_date').notNull(),
-  endDate: date('end_date').notNull(),
+  startDate: date('start_date', { mode: 'date' }).notNull(),
+  endDate: date('end_date', { mode: 'date' }).notNull(),
   newClosureDate: timestamp('new_closure_date', {
     withTimezone: true,
   }).notNull(),
