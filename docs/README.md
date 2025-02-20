@@ -12,70 +12,104 @@ This directory contains the API documentation for the Enterprise Web Software De
 ### Setting Up Postman
 
 1. Open Postman
-2. Import the collection file: `postman/ewsd-api.postman.json`
+2. Import the collection file: `postman/ewsd-university-magazine-api.postman.json`
 3. Set up environment variables:
-   - `baseUrl`: Your API base URL (e.g., `http://localhost:3000`)
+   - `baseUrl`: Your API base URL (e.g., `http://localhost:3001`)
    - `authToken`: Your authentication token (obtained after login)
 
 ## API Modules
 
 ### User Management
 
-- **Register User** (`POST /api/users/register`)
-  - Register a new user with email, password, and personal details
-  - Returns user details and success message
+- **Register User** (`POST /api/user/register`)
+  - Register a new user with email, password, first name, last name, and faculty ID
+  - Body: `{ email, password, firstName, lastName, facultyId }`
 
-- **Login User** (`POST /api/users/login`)
+- **Login User** (`POST /api/user/login`)
   - Authenticate user with email and password
-  - Returns authentication token and user details
+  - Body: `{ email, password }`
+  - Returns authentication token
 
-- **Get Current User** (`GET /api/users/me`)
+- **Get Current User** (`GET /api/user/me`)
   - Get details of currently authenticated user
   - Requires authentication token
 
-- **Get Students by Faculty** (`GET /api/users/students/:facultyId`)
-  - Get all students in a specific faculty
+### Academic Management
+
+- **Get All Faculties** (`GET /api/academic/faculty`)
+  - Get list of all faculties
+  - Requires authentication token
+
+- **Get Academic Years** (`GET /api/academic/academic-year`)
+  - Get list of all academic years
+  - Requires authentication token
+
+- **Get Academic Year by ID** (`GET /api/academic/academic-year/by-id/:id`)
+  - Get specific academic year by ID
+  - Requires authentication token
+
+- **Get Academic Year by Date** (`GET /api/academic/academic-year/by-date`)
+  - Get academic year by date
+  - Query params: `date` (format: YYYY-MM-DD)
+  - Requires authentication token
+
+- **Get Terms** (`GET /api/academic/term`)
+  - Get list of all terms
+  - Requires authentication token
+
+- **Get Term by ID** (`GET /api/academic/term/by-id`)
+  - Get specific term by ID
+  - Query params: `id`
   - Requires authentication token
 
 ### Admin Management
 
 #### User Operations
-- **Reset User Password** (`POST /api/admin/users/reset-password`)
+- **Reset User Password** (`POST /api/admin/reset-user-password`)
   - Reset a user's password (Admin only)
+  - Body: `{ userId, newPassword }`
   - Requires authentication token and admin role
 
-- **Change User Role** (`POST /api/admin/users/change-role`)
+- **Change User Role** (`POST /api/admin/change-user-role`)
   - Change a user's role (Admin only)
+  - Body: `{ userId, newRole }`
+  - Available roles: ['guest', 'student', 'marketing_coordinator', 'marketing_manager', 'admin']
   - Requires authentication token and admin role
 
 #### Faculty Operations
-- **Create Faculty** (`POST /api/admin/faculties`)
-- **Get All Faculties** (`GET /api/admin/faculties`)
-- **Update Faculty** (`PUT /api/admin/faculties/:id`)
-- **Delete Faculty** (`DELETE /api/admin/faculties/:id`)
+- **Create Faculty** (`POST /api/admin/faculty`)
+  - Body: `{ name }`
+- **Update Faculty** (`PUT /api/admin/faculty`)
+  - Body: `{ id, name }`
+- **Delete Faculty** (`DELETE /api/admin/faculty`)
+  - Body: `{ id }`
 
 #### Academic Year Operations
-- **Create Academic Year** (`POST /api/admin/academic-years`)
-- **Get Academic Years** (`GET /api/admin/academic-years`)
-- **Get Academic Year by ID** (`GET /api/admin/academic-years/:id`)
-- **Update Academic Year** (`PUT /api/admin/academic-years/:id`)
-- **Delete Academic Year** (`DELETE /api/admin/academic-years/:id`)
+- **Create Academic Year** (`POST /api/admin/academic-year`)
+  - Body: `{ startDate, endDate, newClosureDate, finalClosureDate }`
+  - All dates must be in ISO 8601 format
+- **Update Academic Year** (`PUT /api/admin/academic-year`)
+  - Body: `{ id, startDate, endDate, newClosureDate, finalClosureDate }`
+  - All dates must be in ISO 8601 format
+- **Delete Academic Year** (`DELETE /api/admin/academic-year`)
+  - Body: `{ id }`
 
 #### Term Operations
-- **Create Term** (`POST /api/admin/terms`)
-- **Get Terms** (`GET /api/admin/terms`)
-- **Get Term by ID** (`GET /api/admin/terms/:id`)
-- **Update Term** (`PUT /api/admin/terms/:id`)
-- **Delete Term** (`DELETE /api/admin/terms/:id`)
+- **Create Term** (`POST /api/admin/term`)
+  - Body: `{ name, content }`
+- **Update Term** (`PUT /api/admin/term`)
+  - Body: `{ id, name, content }`
+- **Delete Term** (`DELETE /api/admin/term`)
+  - Body: `{ id }`
 
 ## Authentication
 
 Most endpoints require authentication using a JWT token. To authenticate:
 
-1. Login using the `/api/users/login` endpoint
+1. Login using the `/api/user/login` endpoint
 2. Copy the returned token
 3. Set the token in your Postman environment variable `authToken`
-4. The token will be automatically included in the request headers
+4. The token will be automatically included in the request headers as `Authorization: Bearer {token}`
 
 ## Error Handling
 
@@ -96,9 +130,3 @@ Common error codes:
 - 403: Forbidden
 - 404: Not Found
 - 500: Internal Server Error
-
-## Rate Limiting
-
-The API implements rate limiting to prevent abuse. Limits are:
-- 100 requests per minute for authenticated users
-- 20 requests per minute for unauthenticated users
