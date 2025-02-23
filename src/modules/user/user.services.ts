@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../../db';
 import { user } from '../../db/schema';
 import bcrypt from 'bcryptjs';
@@ -10,6 +10,7 @@ import {
   ValidationError,
   UnauthorizedError,
 } from '../../utils/errors';
+import { Role } from '../../types/roles';
 
 async function findUserByEmail(email: string) {
   const result = await db
@@ -31,7 +32,22 @@ export async function getStudentsByFaculty(facultyId: string) {
     .where(and(eq(user.facultyId, facultyId), eq(user.role, 'student')));
 }
 
-export async function getUserById(id: string) {
+export async function getGuestsByFaculty(facultyId: string) {
+  return db
+    .select()
+    .from(user)
+    .where(and(eq(user.facultyId, facultyId), eq(user.role, 'guest')));
+}
+
+export async function getUserById(
+  id: string,
+  callerId: string,
+  callerRole: Role,
+) {
+  // Check if caller is authorized to view user
+  if (callerId !== id && callerRole !== 'admin') {
+    throw new UnauthorizedError('Unauthorized to view user');
+  }
   const result = await db
     .select({
       id: user.id,
@@ -40,6 +56,9 @@ export async function getUserById(id: string) {
       firstName: user.firstName,
       lastName: user.lastName,
       facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
     })
     .from(user)
     .where(eq(user.id, id))
@@ -131,7 +150,14 @@ export async function loginUser(input: loginUserBodySchema) {
     Buffer.from(env.JWT_SECRET),
     { expiresIn: env.JWT_EXPIRES_IN } as SignOptions,
   );
-
+  // Update last login and total logins
+  await db
+    .update(user)
+    .set({
+      lastLogin: new Date(),
+      totalLogins: existingUser.totalLogins + 1,
+    })
+    .where(eq(user.id, existingUser.id));
   return {
     user: {
       id: existingUser.id,
@@ -143,4 +169,27 @@ export async function loginUser(input: loginUserBodySchema) {
     },
     token,
   };
+}
+
+export async function getMostActiveUsers() {
+  return db
+    .select({
+      id: user.id,
+      email: user.email,
+      totalLogins: user.totalLogins,
+    })
+    .from(user)
+    .orderBy(desc(user.totalLogins))
+    .limit(10);
+}
+
+export async function getBrowserUsageStats() {
+  // get count of each browser in browser enum
+  return db
+    .select({
+      browser: user.browser,
+      count: sql`COUNT(*)`,
+    })
+    .from(user)
+    .groupBy(user.browser);
 }

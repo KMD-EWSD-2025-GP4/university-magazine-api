@@ -7,7 +7,7 @@ import {
   getTerms,
   getTermById,
 } from './academic.services';
-import { AppError } from '../../utils/errors';
+import { handleError } from '../../utils/errors';
 import {
   getAcademicYearByIdParamsSchema,
   getAcademicYearByDateParamsSchema,
@@ -23,10 +23,7 @@ export async function getAllFacultiesHandler(
     const faculties = await getAllFaculties();
     res.status(200).send(faculties);
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to get faculties');
+    handleError(error, req, res);
   }
 }
 
@@ -38,10 +35,7 @@ export async function getAcademicYearsHandler(
     const academicYears = await getAcademicYears();
     res.status(200).send(academicYears);
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to get academic years');
+    handleError(error, req, res);
   }
 }
 
@@ -54,10 +48,7 @@ export async function getAcademicYearByIdHandler(
     const academicYear = await getAcademicYearById(id);
     res.status(200).send(academicYear);
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to get academic year by id');
+    handleError(error, req, res);
   }
 }
 
@@ -73,11 +64,7 @@ export async function getAcademicYearByDateHandler(
     logger.info(`academic year in controller: ${academicYear}`);
     res.status(200).send(academicYear);
   } catch (error) {
-    logger.error(`Failed to get academic year by date: ${error}`);
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to get academic year by date');
+    handleError(error, req, res);
   }
 }
 
@@ -86,10 +73,7 @@ export async function getTermsHandler(req: FastifyRequest, res: FastifyReply) {
     const terms = await getTerms();
     res.status(200).send(terms);
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to get terms');
+    handleError(error, req, res);
   }
 }
 
@@ -102,9 +86,6 @@ export async function getTermByIdHandler(
     const term = await getTermById(id);
     res.status(200).send(term);
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to get term by id');
+    handleError(error, req, res);
   }
 }

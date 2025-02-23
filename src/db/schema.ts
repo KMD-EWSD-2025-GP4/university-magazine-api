@@ -6,6 +6,7 @@ import {
   uuid,
   index,
   date,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 export const userRolesEnum = pgEnum('user_roles', [
@@ -14,6 +15,15 @@ export const userRolesEnum = pgEnum('user_roles', [
   'marketing_coordinator',
   'marketing_manager',
   'admin',
+]);
+
+export const userBrowsersEnum = pgEnum('user_browsers', [
+  'chrome',
+  'firefox',
+  'safari',
+  'edge',
+  'opera',
+  'other',
 ]);
 
 export const user = pgTable(
@@ -26,6 +36,9 @@ export const user = pgTable(
     lastName: text('last_name').notNull(),
     role: userRolesEnum('role').notNull().default('guest'),
     facultyId: uuid('faculty_id').references(() => faculty.id),
+    lastLogin: timestamp('last_login', { withTimezone: true }),
+    totalLogins: integer('total_logins').notNull().default(0),
+    browser: userBrowsersEnum('browser'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
@@ -95,6 +108,7 @@ export const contribution = pgTable(
     }).notNull(),
     lastUpdated: timestamp('last_updated', { withTimezone: true }).defaultNow(),
     status: contributionStatusEnum('status').notNull().default('pending'),
+    viewCount: integer('view_count').notNull().default(0),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },

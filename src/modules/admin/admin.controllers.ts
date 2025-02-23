@@ -11,13 +11,15 @@ import {
   createTerm,
   deleteTerm,
   updateTerm,
+  createUser,
 } from './admin.services';
-import { AppError } from '../../utils/errors';
+import { AppError, handleError } from '../../utils/errors';
 import {
   changeUserRoleBodySchema,
   createAcademicYearBodySchema,
   createFacultyBodySchema,
   createTermBodySchema,
+  createUserBodySchema,
   deleteAcademicYearBodySchema,
   deleteFacultyBodySchema,
   deleteTermBodySchema,
@@ -28,6 +30,21 @@ import {
 } from './admin.schema';
 import { Role } from '../../types/roles';
 import { logger } from '../../utils/logger';
+
+export async function createUserHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+) {
+  try {
+    const { email, password, role, firstName, lastName, facultyId } =
+      req.body as createUserBodySchema;
+    await createUser(email, password, role, firstName, lastName, facultyId);
+    res.status(200).send({ message: 'User created successfully' });
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
 export async function resetUserPasswordHandler(
   req: FastifyRequest,
   res: FastifyReply,
@@ -37,10 +54,7 @@ export async function resetUserPasswordHandler(
     await resetUserPassword(userId, newPassword);
     res.status(200).send({ message: 'Password reset successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to reset password');
+    handleError(error, req, res);
   }
 }
 
@@ -53,10 +67,7 @@ export async function changeUserRoleHandler(
     await changeUserRole(userId, newRole as Role);
     res.status(200).send({ message: 'User role changed successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to change user role');
+    handleError(error, req, res);
   }
 }
 
@@ -69,10 +80,7 @@ export async function createFacultyHandler(
     await createFaculty(name);
     res.status(200).send({ message: 'Faculty created successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to create faculty');
+    handleError(error, req, res);
   }
 }
 
@@ -85,9 +93,7 @@ export async function deleteFacultyHandler(
     await deleteFaculty(id);
     res.status(200).send({ message: 'Faculty deleted successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
+    handleError(error, req, res);
   }
 }
 
@@ -100,10 +106,7 @@ export async function updateFacultyHandler(
     await updateFaculty(id, name);
     res.status(200).send({ message: 'Faculty updated successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to update faculty');
+    handleError(error, req, res);
   }
 }
 
@@ -122,12 +125,7 @@ export async function createAcademicYearHandler(
     );
     res.status(200).send({ message: 'Academic year created successfully' });
   } catch (error) {
-    logger.error(`Failed to create academic year: ${error}`);
-    logger.error(`Error stack: ${error.stack}`);
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to create academic year');
+    handleError(error, req, res);
   }
 }
 
@@ -140,9 +138,7 @@ export async function deleteAcademicYearHandler(
     await deleteAcademicYear(id);
     res.status(200).send({ message: 'Academic year deleted successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
+    handleError(error, req, res);
   }
 }
 
@@ -162,10 +158,7 @@ export async function updateAcademicYearHandler(
     );
     res.status(200).send({ message: 'Academic year updated successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to update academic year');
+    handleError(error, req, res);
   }
 }
 
@@ -178,9 +171,7 @@ export async function createTermHandler(
     await createTerm(name, content);
     res.status(200).send({ message: 'Term created successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
+    handleError(error, req, res);
   }
 }
 
@@ -193,10 +184,7 @@ export async function deleteTermHandler(
     await deleteTerm(id);
     res.status(200).send({ message: 'Term deleted successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to delete term');
+    handleError(error, req, res);
   }
 }
 
@@ -209,9 +197,6 @@ export async function updateTermHandler(
     await updateTerm(id, name, content);
     res.status(200).send({ message: 'Term updated successfully' });
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw new AppError(500, 'Failed to update term');
+    handleError(error, req, res);
   }
 }

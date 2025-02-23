@@ -39,3 +39,15 @@ export type loginUserBodySchema = z.infer<typeof loginUserBodySchema>;
 export const loginUserJSONSchema = {
   body: zodToJsonSchema(loginUserBodySchema, 'loginUserBodySchema'),
 };
+
+const getUserByIdParamsSchema = z.object({
+  id: z.string({
+    required_error: 'Id is required',
+  }),
+});
+
+export type getUserByIdParamsSchema = z.infer<typeof getUserByIdParamsSchema>;
+
+export const getUserByIdJSONSchema = {
+  params: zodToJsonSchema(getUserByIdParamsSchema, 'getUserByIdParamsSchema'),
+};

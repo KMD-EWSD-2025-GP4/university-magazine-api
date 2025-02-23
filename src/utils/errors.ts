@@ -88,18 +88,6 @@ export const handleError = (
     return reply.status(error.statusCode).send(response);
   }
 
-  // Handle Supabase errors (they come as regular Error objects)
-  if (error.message.includes('Supabase') || error.message.includes('OTP')) {
-    const response: ErrorResponse = {
-      success: false,
-      error: {
-        code: 'AUTH_ERROR',
-        message: error.message,
-      },
-    };
-    return reply.status(401).send(response);
-  }
-
   // Handle Fastify errors
   if ((error as FastifyError).statusCode) {
     const fastifyError = error as FastifyError;

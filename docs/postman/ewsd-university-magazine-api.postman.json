@@ -1,636 +1,660 @@
 {
-  "info": {
-    "_postman_id": "ewsd-university-magazine-api-postman-collection",
-    "name": "EWSD University Magazine API",
-    "description": "API collection for EWSD University Magazine project",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "User Management",
-      "item": [
-        {
-          "name": "Register User",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"facultyId\": \"faculty-id\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/user/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "register"
-              ]
-            },
-            "description": "Register a new user"
-          }
-        },
-        {
-          "name": "Login User",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/user/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "login"
-              ]
-            },
-            "description": "Login user and get authentication token"
-          }
-        },
-        {
-          "name": "Get Current User",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/user/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "me"
-              ]
-            },
-            "description": "Get current authenticated user details"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Academic Management",
-      "item": [
-        {
-          "name": "Get All Faculties",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/academic/faculty",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "academic",
-                "faculty"
-              ]
-            },
-            "description": "Get all faculties"
-          }
-        },
-        {
-          "name": "Get Academic Years",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/academic/academic-year",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "academic",
-                "academic-year"
-              ]
-            },
-            "description": "Get all academic years"
-          }
-        },
-        {
-          "name": "Get Academic Year by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/academic/academic-year/by-id/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "academic",
-                "academic-year",
-                "by-id",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "academic-year-id",
-                  "description": "The ID of the academic year"
-                }
-              ]
-            },
-            "description": "Get academic year by ID"
-          }
-        },
-        {
-          "name": "Get Academic Year by Date",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/academic/academic-year/by-date",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "academic",
-                "academic-year",
-                "by-date"
-              ],
-              "query": [
-                {
-                  "key": "date",
-                  "value": "2024-01-01T00:00:00.000Z"
-                }
-              ]
-            },
-            "description": "Get academic year by date. Date must be in ISO 8601 date-time format."
-          }
-        },
-        {
-          "name": "Get Terms",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/academic/term",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "academic",
-                "term"
-              ]
-            },
-            "description": "Get all terms"
-          }
-        },
-        {
-          "name": "Get Term by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/academic/term/by-id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "academic",
-                "term",
-                "by-id"
-              ],
-              "query": [
-                {
-                  "key": "id",
-                  "value": "term-id"
-                }
-              ]
-            },
-            "description": "Get term by ID"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin Management",
-      "item": [
-        {
-          "name": "Reset User Password",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"userId\": \"user-id\",\n  \"newPassword\": \"newPassword123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/reset-user-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "reset-user-password"
-              ]
-            },
-            "description": "Reset a user's password (Admin only)"
-          }
-        },
-        {
-          "name": "Change User Role",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"userId\": \"user-id\",\n  \"newRole\": \"admin\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/change-user-role",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "change-user-role"
-              ]
-            },
-            "description": "Change a user's role (Admin only)"
-          }
-        },
-        {
-          "name": "Create Faculty",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Faculty of Engineering\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/faculty",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "faculty"
-              ]
-            },
-            "description": "Create a new faculty (Admin only)"
-          }
-        },
-        {
-          "name": "Update Faculty",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"faculty-id\",\n  \"name\": \"Updated Faculty Name\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/faculty",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "faculty"
-              ]
-            },
-            "description": "Update a faculty (Admin only)"
-          }
-        },
-        {
-          "name": "Delete Faculty",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"faculty-id\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/faculty",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "faculty"
-              ]
-            },
-            "description": "Delete a faculty (Admin only)"
-          }
-        },
-        {
-          "name": "Create Academic Year",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"startDate\": \"2024-01-01T00:00:00.000Z\",\n  \"endDate\": \"2024-12-31T23:59:59.999Z\",\n  \"newClosureDate\": \"2024-06-01T00:00:00.000Z\",\n  \"finalClosureDate\": \"2024-07-01T00:00:00.000Z\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/academic-year",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "academic-year"
-              ]
-            },
-            "description": "Create a new academic year (Admin only). All dates must be in ISO 8601 date-time format."
-          }
-        },
-        {
-          "name": "Update Academic Year",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"academic-year-id\",\n  \"startDate\": \"2024-01-01T00:00:00.000Z\",\n  \"endDate\": \"2024-12-31T23:59:59.999Z\",\n  \"newClosureDate\": \"2024-06-01T00:00:00.000Z\",\n  \"finalClosureDate\": \"2024-07-01T00:00:00.000Z\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/academic-year",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "academic-year"
-              ]
-            },
-            "description": "Update an academic year (Admin only). All dates must be in ISO 8601 date-time format."
-          }
-        },
-        {
-          "name": "Delete Academic Year",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"academic-year-id\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/academic-year",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "academic-year"
-              ]
-            },
-            "description": "Delete an academic year (Admin only)"
-          }
-        },
-        {
-          "name": "Create Term",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Term 1\",\n  \"content\": \"Term content and description\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/term",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "term"
-              ]
-            },
-            "description": "Create a new term (Admin only)"
-          }
-        },
-        {
-          "name": "Update Term",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"term-id\",\n  \"name\": \"Updated Term\",\n  \"content\": \"Updated term content\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/term",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "term"
-              ]
-            },
-            "description": "Update a term (Admin only)"
-          }
-        },
-        {
-          "name": "Delete Term",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"term-id\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/term",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "term"
-              ]
-            },
-            "description": "Delete a term (Admin only)"
-          }
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3001",
-      "type": "string"
-    },
-    {
-      "key": "authToken",
-      "value": "your-auth-token-here",
-      "type": "string"
-    }
-  ]
+	"info": {
+		"_postman_id": "b7d773db-ecc6-4230-a055-fa3bbe84253b",
+		"name": "EWSD University Magazine API",
+		"description": "API collection for EWSD University Magazine project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22585791"
+	},
+	"item": [
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"facultyId\": \"faculty-id\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"register"
+							]
+						},
+						"description": "Register a new user"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "Login user and get authentication token"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"me"
+							]
+						},
+						"description": "Get current authenticated user details"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Academic Management",
+			"item": [
+				{
+					"name": "Get All Faculties",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/faculty",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"faculty"
+							]
+						},
+						"description": "Get all faculties"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Academic Years",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/academic-year",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"academic-year"
+							]
+						},
+						"description": "Get all academic years"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Academic Year by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/academic-year/by-id?id=academic-year-id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"academic-year",
+								"by-id"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "academic-year-id"
+								}
+							]
+						},
+						"description": "Get academic year by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Academic Year by Date",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/academic-year/by-date?date=2024-01-01",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"academic-year",
+								"by-date"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2024-01-01"
+								}
+							]
+						},
+						"description": "Get academic year by date"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Terms",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/term",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"term"
+							]
+						},
+						"description": "Get all terms"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Term by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/term/by-id/99c555a5-ff72-4c56-8ed8-44eb4f528847",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"term",
+								"by-id",
+								"99c555a5-ff72-4c56-8ed8-44eb4f528847"
+							]
+						},
+						"description": "Get term by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Management",
+			"item": [
+				{
+					"name": "Reset User Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"user-id\",\n  \"newPassword\": \"newPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/reset-user-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"reset-user-password"
+							]
+						},
+						"description": "Reset a user's password (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"user-id\",\n  \"newRole\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/change-user-role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"change-user-role"
+							]
+						},
+						"description": "Change a user's role (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Faculty",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Faculty of Engineering\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/faculty",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"faculty"
+							]
+						},
+						"description": "Create a new faculty (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Faculty",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"faculty-id\",\n  \"name\": \"Updated Faculty Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/faculty",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"faculty"
+							]
+						},
+						"description": "Update a faculty (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Faculty",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"faculty-id\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/faculty",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"faculty"
+							]
+						},
+						"description": "Delete a faculty (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Academic Year",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01T00:00:00.000Z\",\n  \"finalClosureDate\": \"2024-07-01T00:00:00.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/academic-year",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"academic-year"
+							]
+						},
+						"description": "Create a new academic year (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Academic Year",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"academic-year-id\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01\",\n  \"finalClosureDate\": \"2024-07-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/academic-year",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"academic-year"
+							]
+						},
+						"description": "Update an academic year (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Academic Year",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"academic-year-id\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/academic-year",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"academic-year"
+							]
+						},
+						"description": "Delete an academic year (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Term",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Term 1\",\n  \"content\": \"Term content and description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/term",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"term"
+							]
+						},
+						"description": "Create a new term (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Term",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"term-id\",\n  \"name\": \"Updated Term\",\n  \"content\": \"Updated term content\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/term",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"term"
+							]
+						},
+						"description": "Update a term (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Term",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"term-id\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/term",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"term"
+							]
+						},
+						"description": "Delete a term (Admin only)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3001",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjg5ZDRjOS1hODEyLTQ2MjktYTA3NC1kN2E3YTE3YTM4NjgiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0MDMwMjczMSwiZXhwIjoxNzQwMzg5MTMxfQ.f-4HoXTEPh4RYkarppd_RVrxaf5cizex5pqkcVGDPT0",
+			"type": "string"
+		}
+	]
 }

@@ -58,7 +58,7 @@ export async function academicRoutes(app: FastifyInstance) {
   );
 
   app.get(
-    '/term/by-id',
+    '/term/by-id/:id',
     {
       schema: getTermByIdJSONSchema,
       onRequest: [authenticateRequest],

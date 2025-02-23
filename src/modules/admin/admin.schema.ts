@@ -1,6 +1,27 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
+const createUserBodySchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+  role: z.enum([
+    'guest',
+    'student',
+    'marketing_coordinator',
+    'marketing_manager',
+    'admin',
+  ]),
+  firstName: z.string(),
+  lastName: z.string(),
+  facultyId: z.string(),
+});
+
+export type createUserBodySchema = z.infer<typeof createUserBodySchema>;
+
+export const createUserJSONSchema = {
+  body: zodToJsonSchema(createUserBodySchema, 'createUserBodySchema'),
+};
+
 const resetUserPasswordBodySchema = z.object({
   userId: z.string(),
   newPassword: z.string(),
