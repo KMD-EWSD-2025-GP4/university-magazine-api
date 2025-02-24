@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../../db';
-import { user } from '../../db/schema';
+import { faculty, user } from '../../db/schema';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '../../config/env';
@@ -22,19 +22,51 @@ async function findUserByEmail(email: string) {
 }
 
 export async function getUsers() {
-  return db.select().from(user);
+  // user join faculty
+  return db
+    .select({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
+      facultyName: faculty.name,
+    })
+    .from(user)
+    .leftJoin(faculty, eq(user.facultyId, faculty.id));
 }
 
 export async function getStudentsByFaculty(facultyId: string) {
   return db
-    .select()
+    .select({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
+    })
     .from(user)
     .where(and(eq(user.facultyId, facultyId), eq(user.role, 'student')));
 }
 
 export async function getGuestsByFaculty(facultyId: string) {
   return db
-    .select()
+    .select({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
+    })
     .from(user)
     .where(and(eq(user.facultyId, facultyId), eq(user.role, 'guest')));
 }
@@ -53,8 +85,7 @@ export async function getUserById(
       id: user.id,
       email: user.email,
       role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      name: user.name,
       facultyId: user.facultyId,
       lastLogin: user.lastLogin,
       totalLogins: user.totalLogins,
@@ -76,8 +107,7 @@ export async function getUserByEmail(email: string) {
       id: user.id,
       email: user.email,
       role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      name: user.name,
       facultyId: user.facultyId,
     })
     .from(user)
@@ -92,7 +122,7 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function registerUser(input: registerUserBodySchema) {
-  const { email, password, firstName, lastName, facultyId } = input;
+  const { email, password, name, facultyId } = input;
 
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
@@ -108,8 +138,7 @@ export async function registerUser(input: registerUserBodySchema) {
     .values({
       email,
       passwordHash,
-      firstName,
-      lastName,
+      name,
       facultyId,
       role: 'guest', // Default role for new registrations
     })
@@ -162,8 +191,7 @@ export async function loginUser(input: loginUserBodySchema) {
     user: {
       id: existingUser.id,
       email: existingUser.email,
-      firstName: existingUser.firstName,
-      lastName: existingUser.lastName,
+      name: existingUser.name,
       role: existingUser.role,
       facultyId: existingUser.facultyId,
     },
@@ -177,6 +205,8 @@ export async function getMostActiveUsers() {
       id: user.id,
       email: user.email,
       totalLogins: user.totalLogins,
+      name: user.name,
+      facultyId: user.facultyId,
     })
     .from(user)
     .orderBy(desc(user.totalLogins))

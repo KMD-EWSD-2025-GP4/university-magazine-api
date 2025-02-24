@@ -7,6 +7,7 @@ import {
   index,
   date,
   integer,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 export const userRolesEnum = pgEnum('user_roles', [
@@ -32,8 +33,7 @@ export const user = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
-    firstName: text('first_name').notNull(),
-    lastName: text('last_name').notNull(),
+    name: text('name').notNull(),
     role: userRolesEnum('role').notNull().default('guest'),
     facultyId: uuid('faculty_id').references(() => faculty.id),
     lastLogin: timestamp('last_login', { withTimezone: true }),
@@ -60,19 +60,28 @@ export const faculty = pgTable(
   (faculties) => [index().on(faculties.name)],
 );
 
-export const academicYear = pgTable('academic_years', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  startDate: date('start_date', { mode: 'date' }).notNull(),
-  endDate: date('end_date', { mode: 'date' }).notNull(),
-  newClosureDate: timestamp('new_closure_date', {
-    withTimezone: true,
-  }).notNull(),
-  finalClosureDate: timestamp('final_closure_date', {
-    withTimezone: true,
-  }).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
+export const academicYear = pgTable(
+  'academic_years',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    startDate: date('start_date', { mode: 'date' }).notNull(),
+    endDate: date('end_date', { mode: 'date' }).notNull(),
+    newClosureDate: timestamp('new_closure_date', {
+      withTimezone: true,
+    }).notNull(),
+    finalClosureDate: timestamp('final_closure_date', {
+      withTimezone: true,
+    }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  // composite unique on start and end date
+  (academicYears) => [
+    unique().on(academicYears.startDate, academicYears.endDate),
+    index().on(academicYears.startDate),
+    index().on(academicYears.endDate),
+  ],
+);
 
 export const term = pgTable('terms', {
   id: uuid('id').primaryKey().defaultRandom(),

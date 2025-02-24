@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"facultyId\": \"faculty-id\"\n}"
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"John Doe\",\n  \"facultyId\": \"faculty-id\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/register",
@@ -92,6 +92,111 @@
 						"description": "Get current authenticated user details"
 					},
 					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						},
+						"description": "Get all users (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user-id"
+								}
+							]
+						},
+						"description": "Get user by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Most Active Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/most-active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"most-active"
+							]
+						},
+						"description": "Get most active users (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Browser Usage Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/browser-usage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"browser-usage"
+							]
+						},
+						"description": "Get browser usage statistics (Admin only)"
+					},
+					"response": []
 				}
 			]
 		},
@@ -159,7 +264,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/academic/academic-year/by-id?id=academic-year-id",
+							"raw": "{{baseUrl}}/api/academic/academic-year/by-id/:id",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -167,9 +272,10 @@
 								"api",
 								"academic",
 								"academic-year",
-								"by-id"
+								"by-id",
+								":id"
 							],
-							"query": [
+							"variable": [
 								{
 									"key": "id",
 									"value": "academic-year-id"
@@ -191,7 +297,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/academic/academic-year/by-date?date=2024-01-01",
+							"raw": "{{baseUrl}}/api/academic/academic-year/by-date",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -248,7 +354,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/academic/term/by-id/99c555a5-ff72-4c56-8ed8-44eb4f528847",
+							"raw": "{{baseUrl}}/api/academic/term/by-id/:id",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -257,7 +363,13 @@
 								"academic",
 								"term",
 								"by-id",
-								"99c555a5-ff72-4c56-8ed8-44eb4f528847"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "term-id"
+								}
 							]
 						},
 						"description": "Get term by ID"
@@ -332,6 +444,39 @@
 							]
 						},
 						"description": "Change a user's role (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Faculty",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"user-id\",\n  \"newFacultyId\": \"faculty-id\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/change-user-faculty",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"change-user-faculty"
+							]
+						},
+						"description": "Change a user's faculty (Admin only)"
 					},
 					"response": []
 				},
@@ -446,7 +591,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01T00:00:00.000Z\",\n  \"finalClosureDate\": \"2024-07-01T00:00:00.000Z\"\n}"
+							"raw": "{\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01\",\n  \"finalClosureDate\": \"2024-07-01\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/admin/academic-year",
@@ -653,7 +798,7 @@
 		},
 		{
 			"key": "authToken",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjg5ZDRjOS1hODEyLTQ2MjktYTA3NC1kN2E3YTE3YTM4NjgiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0MDMwMjczMSwiZXhwIjoxNzQwMzg5MTMxfQ.f-4HoXTEPh4RYkarppd_RVrxaf5cizex5pqkcVGDPT0",
+			"value": "your-auth-token-here",
 			"type": "string"
 		}
 	]

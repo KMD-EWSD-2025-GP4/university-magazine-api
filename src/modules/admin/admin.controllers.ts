@@ -12,10 +12,12 @@ import {
   deleteTerm,
   updateTerm,
   createUser,
+  changeUserFaculty,
 } from './admin.services';
 import { AppError, handleError } from '../../utils/errors';
 import {
   changeUserRoleBodySchema,
+  changeUserFacultyBodySchema,
   createAcademicYearBodySchema,
   createFacultyBodySchema,
   createTermBodySchema,
@@ -36,9 +38,9 @@ export async function createUserHandler(
   res: FastifyReply,
 ) {
   try {
-    const { email, password, role, firstName, lastName, facultyId } =
+    const { email, password, role, name, facultyId } =
       req.body as createUserBodySchema;
-    await createUser(email, password, role, firstName, lastName, facultyId);
+    await createUser(email, password, role, name, facultyId);
     res.status(200).send({ message: 'User created successfully' });
   } catch (error) {
     handleError(error, req, res);
@@ -105,6 +107,19 @@ export async function updateFacultyHandler(
     const { id, name } = req.body as updateFacultyBodySchema;
     await updateFaculty(id, name);
     res.status(200).send({ message: 'Faculty updated successfully' });
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function changeUserFacultyHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+) {
+  try {
+    const { userId, newFacultyId } = req.body as changeUserFacultyBodySchema;
+    await changeUserFaculty(userId, newFacultyId);
+    res.status(200).send({ message: 'User faculty changed successfully' });
   } catch (error) {
     handleError(error, req, res);
   }

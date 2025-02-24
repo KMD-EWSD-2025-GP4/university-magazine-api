@@ -11,8 +11,7 @@ const createUserBodySchema = z.object({
     'marketing_manager',
     'admin',
   ]),
-  firstName: z.string(),
-  lastName: z.string(),
+  name: z.string(),
   facultyId: z.string(),
 });
 
@@ -53,6 +52,22 @@ export type changeUserRoleBodySchema = z.infer<typeof changeUserRoleBodySchema>;
 
 export const changeUserRoleJSONSchema = {
   body: zodToJsonSchema(changeUserRoleBodySchema, 'changeUserRoleBodySchema'),
+};
+
+const changeUserFacultyBodySchema = z.object({
+  userId: z.string(),
+  newFacultyId: z.string(),
+});
+
+export type changeUserFacultyBodySchema = z.infer<
+  typeof changeUserFacultyBodySchema
+>;
+
+export const changeUserFacultyJSONSchema = {
+  body: zodToJsonSchema(
+    changeUserFacultyBodySchema,
+    'changeUserFacultyBodySchema',
+  ),
 };
 
 const createFacultyBodySchema = z.object({

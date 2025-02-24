@@ -32,7 +32,7 @@ export async function academicRoutes(app: FastifyInstance) {
   );
 
   app.get(
-    '/academic-year/by-id',
+    '/academic-year/by-id/:id',
     {
       schema: getAcademicYearByIdJSONSchema,
       onRequest: [authenticateRequest],

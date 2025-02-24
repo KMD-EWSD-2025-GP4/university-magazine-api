@@ -2,6 +2,8 @@ import { db } from '../../db';
 import { academicYear, faculty, term } from '../../db/schema';
 import { eq, or } from 'drizzle-orm';
 import { logger } from '../../utils/logger';
+import { ValidationError } from '../../utils/errors';
+import { DatabaseError } from 'pg';
 
 export async function getAllFaculties() {
   return await db.select().from(faculty);
@@ -12,10 +14,17 @@ export async function getAcademicYears() {
 }
 
 export async function getAcademicYearById(academicYearId: string) {
-  return await db
-    .select()
-    .from(academicYear)
-    .where(eq(academicYear.id, academicYearId));
+  try {
+    return await db
+      .select()
+      .from(academicYear)
+      .where(eq(academicYear.id, academicYearId));
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid academic year id');
+    }
+    throw error;
+  }
 }
 
 export async function getAcademicYearByDate(date: Date) {
@@ -32,5 +41,12 @@ export async function getTerms() {
 }
 
 export async function getTermById(termId: string) {
-  return await db.select().from(term).where(eq(term.id, termId));
+  try {
+    return await db.select().from(term).where(eq(term.id, termId));
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid term id');
+    }
+    throw error;
+  }
 }

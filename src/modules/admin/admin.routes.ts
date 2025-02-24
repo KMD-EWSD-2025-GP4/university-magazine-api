@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import {
+  changeUserFacultyHandler,
   changeUserRoleHandler,
   createAcademicYearHandler,
   createFacultyHandler,

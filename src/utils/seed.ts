@@ -62,8 +62,7 @@ export const seedAdminUser = async () => {
   const adminUser = {
     email: 'admin@gmail.com',
     password: 'admin',
-    firstName: 'Admin',
-    lastName: 'User',
+    name: 'Admin User',
     role: 'admin' as const,
   };
   // check if user already exists
@@ -82,8 +81,10 @@ export const seedAdminUser = async () => {
   // hash password
   const hashedPassword = await bcrypt.hash(adminUser.password, 10);
   await db.insert(user).values({
-    ...adminUser,
+    email: adminUser.email,
+    name: adminUser.name,
     passwordHash: hashedPassword,
+    role: adminUser.role,
     facultyId: adminFaculty[0].id,
   });
 };
@@ -93,22 +94,19 @@ export const seedStudentUsers = async () => {
     {
       email: 'student1@gmail.com',
       password: 'student1',
-      firstName: 'Student',
-      lastName: 'One',
+      name: 'Student One',
       role: 'student' as const,
     },
     {
       email: 'student2@gmail.com',
       password: 'student2',
-      firstName: 'Student',
-      lastName: 'Two',
+      name: 'Student Two',
       role: 'student' as const,
     },
     {
       email: 'student3@gmail.com',
       password: 'student3',
-      firstName: 'Student',
-      lastName: 'Three',
+      name: 'Student Three',
       role: 'student' as const,
     },
   ];
@@ -131,8 +129,10 @@ export const seedStudentUsers = async () => {
       .where(eq(faculty.name, faculties[randomNumber].name))
       .limit(1);
     await db.insert(user).values({
-      ...item,
+      email: item.email,
+      name: item.name,
       passwordHash: hashedPassword,
+      role: item.role,
       facultyId: randomFaculty[0].id,
     });
   });
