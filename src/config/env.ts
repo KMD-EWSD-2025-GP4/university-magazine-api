@@ -14,5 +14,11 @@ export const env = zennv({
     JWT_SECRET: z.string(),
     JWT_EXPIRES_IN: z.string(),
     API_URL: z.string(),
+    EMAIL_FROM: z.string(),
+    RESEND_API_KEY: z.string(),
+    AWS_ACCESS_KEY_ID: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
+    AWS_REGION: z.string(),
+    AWS_BUCKET_NAME: z.string(),
   }),
 });

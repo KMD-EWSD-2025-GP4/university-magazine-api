@@ -74,6 +74,7 @@ The server will start on http://localhost:3001 by default (or the port specified
 - `yarn build` - Build the project for production
 - `yarn start` - Start the production server
 - `yarn lint` - Run ESLint
+- `yarn lint:fix` - Fix ESLint errors
 - `yarn prettier` - Format code with Prettier
 - `yarn prettier:check` - Check code formatting
 - `yarn migration:generate` - Generate database migrations (run this after making changes to the database schema)
@@ -102,3 +103,9 @@ The server will start on http://localhost:3001 by default (or the port specified
 | DB_URL     | PostgreSQL connection URL | postgress://postgres:postgres@localhost:5432/university_magazine_db |
 | JWT_SECRET | JWT signing secret        | (Set in .env)                                                    |
 | API_URL    | Base API URL              | http://localhost:3001                                            |
+| EMAIL_FROM | Email sender address      | (Set in .env)                                                    |
+| RESEND_API_KEY | Resend API Key        | (Set in .env)                                                    |
+| AWS_ACCESS_KEY_ID | AWS Access Key ID        | (Set in .env)                                                    |
+| AWS_SECRET_ACCESS_KEY | AWS Secret Access Key        | (Set in .env)                                                    |
+| AWS_REGION | AWS Region                | (Set in .env)                                                    |
+| AWS_BUCKET_NAME | AWS Bucket Name        | (Set in .env)                                                    |

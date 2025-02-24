@@ -4,7 +4,6 @@ import { academicYear, faculty, term, user } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { Role } from '../../types/roles';
 import { logger } from '../../utils/logger';
-import { V } from 'vitest/dist/chunks/reporters.nr4dxCkA';
 import { ValidationError } from '../../utils/errors';
 import { DatabaseError } from 'pg';
 

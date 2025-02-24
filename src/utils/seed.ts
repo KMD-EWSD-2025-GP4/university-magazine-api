@@ -4,7 +4,6 @@ import { academicYear, faculty, user } from '../db/schema';
 import { db } from '../db/';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
-import { logger } from './logger';
 
 const faculties = [
   {
