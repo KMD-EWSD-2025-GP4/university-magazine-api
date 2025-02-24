@@ -3,7 +3,11 @@ import { db } from './db';
 import { logger } from './utils/logger';
 import { createServer } from './utils/server';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { generateFaculties } from './utils/seed';
+import {
+  generateFaculties,
+  seedStudentUsers,
+  seedAdminUser,
+} from './utils/seed';
 async function gracefulShutdown({
   app,
   signal,
@@ -45,6 +49,8 @@ async function main() {
 
     // Temporary seeding before faculty API is implemented
     await generateFaculties();
+    await seedAdminUser();
+    await seedStudentUsers();
     await app.listen({
       port: env.PORT,
       host: env.HOST,

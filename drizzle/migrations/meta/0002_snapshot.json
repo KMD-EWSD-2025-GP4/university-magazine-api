@@ -1,6 +1,6 @@
 {
-  "id": "b16b25a3-2eb6-4c9a-87f1-09d65452ee2a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "3ed99cbb-a168-4055-8255-764a434a7bc9",
+  "prevId": "5bda13e4-1608-4375-a0b7-19dff6763434",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -54,10 +54,50 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "academic_years_start_date_index": {
+          "name": "academic_years_start_date_index",
+          "columns": [
+            {
+              "expression": "start_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "academic_years_end_date_index": {
+          "name": "academic_years_end_date_index",
+          "columns": [
+            {
+              "expression": "end_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "academic_years_start_date_end_date_unique": {
+          "name": "academic_years_start_date_end_date_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "start_date",
+            "end_date"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -233,6 +273,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'pending'"
+        },
+        "view_count": {
+          "name": "view_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "created_at": {
           "name": "created_at",
@@ -559,14 +606,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "first_name": {
-          "name": "first_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "last_name": {
-          "name": "last_name",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -582,6 +623,26 @@
         "faculty_id": {
           "name": "faculty_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_login": {
+          "name": "last_login",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_logins": {
+          "name": "total_logins",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "browser": {
+          "name": "browser",
+          "type": "user_browsers",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -678,6 +739,18 @@
         "pending",
         "selected",
         "rejected"
+      ]
+    },
+    "public.user_browsers": {
+      "name": "user_browsers",
+      "schema": "public",
+      "values": [
+        "chrome",
+        "firefox",
+        "safari",
+        "edge",
+        "opera",
+        "other"
       ]
     },
     "public.user_roles": {

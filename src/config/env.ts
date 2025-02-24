@@ -12,6 +12,7 @@ export const env = zennv({
     DB_URL: z.string(),
     FRONTEND_URL: z.string().default('http://localhost:3000'),
     JWT_SECRET: z.string(),
+    JWT_EXPIRES_IN: z.string(),
     API_URL: z.string(),
   }),
 });

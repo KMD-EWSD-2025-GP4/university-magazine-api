@@ -1,6 +1,6 @@
 {
-  "id": "b16b25a3-2eb6-4c9a-87f1-09d65452ee2a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "5bda13e4-1608-4375-a0b7-19dff6763434",
+  "prevId": "b16b25a3-2eb6-4c9a-87f1-09d65452ee2a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -233,6 +233,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'pending'"
+        },
+        "view_count": {
+          "name": "view_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "created_at": {
           "name": "created_at",
@@ -585,6 +592,26 @@
           "primaryKey": false,
           "notNull": false
         },
+        "last_login": {
+          "name": "last_login",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_logins": {
+          "name": "total_logins",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "browser": {
+          "name": "browser",
+          "type": "user_browsers",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -678,6 +705,18 @@
         "pending",
         "selected",
         "rejected"
+      ]
+    },
+    "public.user_browsers": {
+      "name": "user_browsers",
+      "schema": "public",
+      "values": [
+        "chrome",
+        "firefox",
+        "safari",
+        "edge",
+        "opera",
+        "other"
       ]
     },
     "public.user_roles": {

@@ -8,24 +8,15 @@ const registerUserBodySchema = z.object({
   password: z.string({
     required_error: 'Password is required',
   }),
-  firstName: z.string({
-    required_error: 'First name is required',
-  }),
-  lastName: z.string({
-    required_error: 'Last name is required',
+  name: z.string({
+    required_error: 'Name is required',
   }),
   facultyId: z.string({
     required_error: 'Faculty is required',
   }),
 });
 
-export type registerUserBodySchema = {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  facultyId: string;
-};
+export type registerUserBodySchema = z.infer<typeof registerUserBodySchema>;
 
 export const registerUserJSONSchema = {
   body: zodToJsonSchema(registerUserBodySchema, 'createUserBodySchema'),
@@ -40,11 +31,20 @@ export const loginUserBodySchema = z.object({
   }),
 });
 
-export type loginUserBodySchema = {
-  email: string;
-  password: string;
-};
+export type loginUserBodySchema = z.infer<typeof loginUserBodySchema>;
 
 export const loginUserJSONSchema = {
   body: zodToJsonSchema(loginUserBodySchema, 'loginUserBodySchema'),
+};
+
+const getUserByIdParamsSchema = z.object({
+  id: z.string({
+    required_error: 'Id is required',
+  }),
+});
+
+export type getUserByIdParamsSchema = z.infer<typeof getUserByIdParamsSchema>;
+
+export const getUserByIdJSONSchema = {
+  params: zodToJsonSchema(getUserByIdParamsSchema, 'getUserByIdParamsSchema'),
 };

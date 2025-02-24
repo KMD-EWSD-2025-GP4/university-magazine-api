@@ -6,6 +6,8 @@ import {
   uuid,
   index,
   date,
+  integer,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 export const userRolesEnum = pgEnum('user_roles', [
@@ -16,16 +18,27 @@ export const userRolesEnum = pgEnum('user_roles', [
   'admin',
 ]);
 
+export const userBrowsersEnum = pgEnum('user_browsers', [
+  'chrome',
+  'firefox',
+  'safari',
+  'edge',
+  'opera',
+  'other',
+]);
+
 export const user = pgTable(
   'users',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
-    firstName: text('first_name').notNull(),
-    lastName: text('last_name').notNull(),
+    name: text('name').notNull(),
     role: userRolesEnum('role').notNull().default('guest'),
     facultyId: uuid('faculty_id').references(() => faculty.id),
+    lastLogin: timestamp('last_login', { withTimezone: true }),
+    totalLogins: integer('total_logins').notNull().default(0),
+    browser: userBrowsersEnum('browser'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
@@ -40,26 +53,35 @@ export const faculty = pgTable(
   'faculties',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
+    name: text('name').notNull().unique(),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
   (faculties) => [index().on(faculties.name)],
 );
 
-export const academicYear = pgTable('academic_years', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  startDate: date('start_date').notNull(),
-  endDate: date('end_date').notNull(),
-  newClosureDate: timestamp('new_closure_date', {
-    withTimezone: true,
-  }).notNull(),
-  finalClosureDate: timestamp('final_closure_date', {
-    withTimezone: true,
-  }).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
+export const academicYear = pgTable(
+  'academic_years',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    startDate: date('start_date', { mode: 'date' }).notNull(),
+    endDate: date('end_date', { mode: 'date' }).notNull(),
+    newClosureDate: timestamp('new_closure_date', {
+      withTimezone: true,
+    }).notNull(),
+    finalClosureDate: timestamp('final_closure_date', {
+      withTimezone: true,
+    }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  // composite unique on start and end date
+  (academicYears) => [
+    unique().on(academicYears.startDate, academicYears.endDate),
+    index().on(academicYears.startDate),
+    index().on(academicYears.endDate),
+  ],
+);
 
 export const term = pgTable('terms', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -95,6 +117,7 @@ export const contribution = pgTable(
     }).notNull(),
     lastUpdated: timestamp('last_updated', { withTimezone: true }).defaultNow(),
     status: contributionStatusEnum('status').notNull().default('pending'),
+    viewCount: integer('view_count').notNull().default(0),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },

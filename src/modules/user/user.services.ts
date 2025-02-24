@@ -1,17 +1,16 @@
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../../db';
-import { user } from '../../db/schema';
+import { faculty, user } from '../../db/schema';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { registerUserBodySchema, loginUserBodySchema } from './user.schema';
-import { logger } from '../../utils/logger';
 import {
-  AppError,
   NotFoundError,
   ValidationError,
   UnauthorizedError,
 } from '../../utils/errors';
+import { Role } from '../../types/roles';
 
 async function findUserByEmail(email: string) {
   const result = await db
@@ -23,25 +22,74 @@ async function findUserByEmail(email: string) {
 }
 
 export async function getUsers() {
-  return db.select().from(user);
+  // user join faculty
+  return db
+    .select({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
+      facultyName: faculty.name,
+    })
+    .from(user)
+    .leftJoin(faculty, eq(user.facultyId, faculty.id));
 }
 
 export async function getStudentsByFaculty(facultyId: string) {
   return db
-    .select()
+    .select({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
+    })
     .from(user)
     .where(and(eq(user.facultyId, facultyId), eq(user.role, 'student')));
 }
 
-export async function getUserById(id: string) {
+export async function getGuestsByFaculty(facultyId: string) {
+  return db
+    .select({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
+    })
+    .from(user)
+    .where(and(eq(user.facultyId, facultyId), eq(user.role, 'guest')));
+}
+
+export async function getUserById(
+  id: string,
+  callerId: string,
+  callerRole: Role,
+) {
+  // Check if caller is authorized to view user
+  if (callerId !== id && callerRole !== 'admin') {
+    throw new UnauthorizedError('Unauthorized to view user');
+  }
   const result = await db
     .select({
       id: user.id,
       email: user.email,
       role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      name: user.name,
       facultyId: user.facultyId,
+      lastLogin: user.lastLogin,
+      totalLogins: user.totalLogins,
+      browser: user.browser,
     })
     .from(user)
     .where(eq(user.id, id))
@@ -59,8 +107,7 @@ export async function getUserByEmail(email: string) {
       id: user.id,
       email: user.email,
       role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      name: user.name,
       facultyId: user.facultyId,
     })
     .from(user)
@@ -75,7 +122,7 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function registerUser(input: registerUserBodySchema) {
-  const { email, password, firstName, lastName, facultyId } = input;
+  const { email, password, name, facultyId } = input;
 
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
@@ -91,8 +138,7 @@ export async function registerUser(input: registerUserBodySchema) {
     .values({
       email,
       passwordHash,
-      firstName,
-      lastName,
+      name,
       facultyId,
       role: 'guest', // Default role for new registrations
     })
@@ -130,19 +176,50 @@ export async function loginUser(input: loginUserBodySchema) {
       email: existingUser.email,
       role: existingUser.role,
     },
-    env.JWT_SECRET,
-    { expiresIn: '24h' }, // Longer expiry since we don't have refresh
+    Buffer.from(env.JWT_SECRET),
+    { expiresIn: env.JWT_EXPIRES_IN } as SignOptions,
   );
-
+  // Update last login and total logins
+  await db
+    .update(user)
+    .set({
+      lastLogin: new Date(),
+      totalLogins: existingUser.totalLogins + 1,
+    })
+    .where(eq(user.id, existingUser.id));
   return {
     user: {
       id: existingUser.id,
       email: existingUser.email,
-      firstName: existingUser.firstName,
-      lastName: existingUser.lastName,
+      name: existingUser.name,
       role: existingUser.role,
       facultyId: existingUser.facultyId,
     },
     token,
   };
+}
+
+export async function getMostActiveUsers() {
+  return db
+    .select({
+      id: user.id,
+      email: user.email,
+      totalLogins: user.totalLogins,
+      name: user.name,
+      facultyId: user.facultyId,
+    })
+    .from(user)
+    .orderBy(desc(user.totalLogins))
+    .limit(10);
+}
+
+export async function getBrowserUsageStats() {
+  // get count of each browser in browser enum
+  return db
+    .select({
+      browser: user.browser,
+      count: sql`COUNT(*)`,
+    })
+    .from(user)
+    .groupBy(user.browser);
 }
