@@ -5,6 +5,8 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '../config/env';
+import { logger } from './logger';
+
 // Initialize S3 client
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'ap-southeast-1',
@@ -36,7 +38,7 @@ export async function generatePresignedUploadUrl(
     const url = await getSignedUrl(s3Client, command, { expiresIn });
     return url;
   } catch (error) {
-    console.error('Error generating presigned upload URL:', error);
+    logger.error(`Error generating presigned upload URL: ${error}`);
     throw error;
   }
 }
@@ -45,7 +47,7 @@ export async function generatePresignedUploadUrl(
  * Generate a presigned URL for downloading a file from S3
  * @param bucket - The S3 bucket name
  * @param key - The object key (file path in S3)
- * @param expiresIn - URL expiration time in seconds (default: 3600s = 1 hour)
+ * @param expiresIn - URL expiration time in seconds (default: 7 days)
  * @returns Promise<string> - The presigned URL for download
  */
 export async function generatePresignedDownloadUrl(
@@ -63,7 +65,7 @@ export async function generatePresignedDownloadUrl(
     const url = await getSignedUrl(s3Client, command, { expiresIn });
     return url;
   } catch (error) {
-    console.error('Error generating presigned download URL:', error);
+    logger.error(`Error generating presigned download URL: ${error}`);
     throw error;
   }
 }
