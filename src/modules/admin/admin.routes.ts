@@ -25,6 +25,7 @@ import {
   createTermJSONSchema,
   deleteTermJSONSchema,
   updateTermJSONSchema,
+  changeUserFacultyJSONSchema,
 } from './admin.schema';
 import { authenticateRequest } from '../../middleware/auth';
 import { checkRole } from '../../middleware/auth';
@@ -48,6 +49,16 @@ export async function adminRoutes(app: FastifyInstance) {
       preHandler: [checkRole(['admin'])],
     },
     changeUserRoleHandler,
+  );
+
+  app.post(
+    '/change-user-faculty',
+    {
+      schema: changeUserFacultyJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['admin'])],
+    },
+    changeUserFacultyHandler,
   );
 
   app.post(
