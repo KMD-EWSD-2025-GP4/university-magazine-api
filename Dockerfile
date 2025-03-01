@@ -14,4 +14,4 @@ COPY --from=build /app/yarn.lock .
 RUN yarn install --production --frozen-lockfile
 COPY --from=build /app/dist .
 EXPOSE 3001
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "src/main.js"]
