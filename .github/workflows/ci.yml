@@ -58,8 +58,8 @@ jobs:
 
       - name: Deploy to server
         run: |
-          scp deploy.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/opt/university-magazine/
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "cd /opt/university-magazine && \
+          scp deploy.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/devops/university-magazine/
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "cd ~/devops/university-magazine && \
           GITHUB_ACTOR='${{ github.actor }}' \
           GITHUB_TOKEN='${{ secrets.GITHUB_TOKEN }}' \
           ansible-playbook deploy.yml"

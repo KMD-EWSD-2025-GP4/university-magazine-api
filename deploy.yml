@@ -7,74 +7,6 @@
   connection: local
   become: yes
   tasks:
-    - name: Create directory for docker-compose if it doesn't exist
-      file:
-        path: /opt/university-magazine
-        state: directory
-        mode: '0755'
-
-    - name: Create docker-compose.yml if it doesn't exist
-      copy:
-        dest: /opt/university-magazine/docker-compose.yml
-        content: |
-          version: '3.8'
-
-          services:
-            api:
-              image: ghcr.io/{{lookup('env', 'GITHUB_REPOSITORY_OWNER')}}/university-magazine-api:latest
-              restart: always
-              ports:
-                - "3000:3000"
-              environment:
-                - DATABASE_URL=postgres://postgres:postgres@db:5432/university_magazine
-                - JWT_SECRET={{lookup('env', 'JWT_SECRET')}}
-                - RESEND_API_KEY={{lookup('env', 'RESEND_API_KEY')}}
-                - AWS_ACCESS_KEY_ID={{lookup('env', 'AWS_ACCESS_KEY_ID')}}
-                - AWS_SECRET_ACCESS_KEY={{lookup('env', 'AWS_SECRET_ACCESS_KEY')}}
-                - AWS_REGION={{lookup('env', 'AWS_REGION')}}
-                - AWS_BUCKET_NAME={{lookup('env', 'AWS_BUCKET_NAME')}}
-              depends_on:
-                - db
-
-            frontend:
-              image: ghcr.io/{{lookup('env', 'GITHUB_REPOSITORY_OWNER')}}/university-magazine-frontend:latest
-              restart: always
-              ports:
-                - "80:3000"
-              environment:
-                - NEXT_PUBLIC_API_URL=http://api:3000
-              depends_on:
-                - api
-
-            db:
-              image: postgres:14
-              restart: always
-              ports:
-                - "5432:5432"
-              environment:
-                - POSTGRES_USER=postgres
-                - POSTGRES_PASSWORD=postgres
-                - POSTGRES_DB=university_magazine
-              volumes:
-                - postgres_data:/var/lib/postgresql/data
-
-          volumes:
-            postgres_data:
-        force: no  # Don't overwrite if it already exists
-
-    - name: Create .env file if it doesn't exist
-      copy:
-        dest: /opt/university-magazine/.env
-        content: |
-          JWT_SECRET={{lookup('env', 'JWT_SECRET')}}
-          RESEND_API_KEY={{lookup('env', 'RESEND_API_KEY')}}
-          AWS_ACCESS_KEY_ID={{lookup('env', 'AWS_ACCESS_KEY_ID')}}
-          AWS_SECRET_ACCESS_KEY={{lookup('env', 'AWS_SECRET_ACCESS_KEY')}}
-          AWS_REGION={{lookup('env', 'AWS_REGION')}}
-          AWS_BUCKET_NAME={{lookup('env', 'AWS_BUCKET_NAME')}}
-          GITHUB_REPOSITORY_OWNER={{lookup('env', 'GITHUB_REPOSITORY_OWNER')}}
-        force: no  # Don't overwrite if it already exists
-
     - name: Login to GitHub Container Registry
       community.docker.docker_login:
         registry: ghcr.io
@@ -84,11 +16,11 @@
 
     - name: Pull latest Docker images
       community.docker.docker_compose:
-        project_src: /opt/university-magazine
+        project_src: ~/devops/university-magazine
         pull: yes
         state: present
 
     - name: Restart Docker Compose services
       community.docker.docker_compose:
-        project_src: /opt/university-magazine
+        project_src: ~/devops/university-magazine
         restarted: yes
