@@ -9,7 +9,6 @@ RUN yarn build
 #Serve
 FROM node:22-alpine AS serve
 WORKDIR /app
-COPY --from=build /app/build .
 COPY --from=build /app/package.json .
 COPY --from=build /app/yarn.lock .
 RUN yarn install --production --frozen-lockfile
