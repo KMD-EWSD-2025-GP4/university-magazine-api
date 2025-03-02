@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { db } from '../db';
@@ -9,7 +9,6 @@ import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 
 export async function authenticateRequest(
   request: FastifyRequest,
-  reply: FastifyReply,
 ): Promise<void> {
   try {
     const token = request.headers.authorization?.split(' ')[1];
@@ -29,6 +28,8 @@ export async function authenticateRequest(
         id: user.id,
         email: user.email,
         role: user.role,
+        facultyId: user.facultyId,
+        name: user.name,
       })
       .from(user)
       .where(eq(user.email, decoded.email))
@@ -52,7 +53,7 @@ export async function authenticateRequest(
 }
 
 export function checkRole(roles: string[]) {
-  return async (request: FastifyRequest, reply: FastifyReply) => {
+  return async (request: FastifyRequest): Promise<void> => {
     try {
       if (!request.user) {
         throw new UnauthorizedError('User not authenticated');

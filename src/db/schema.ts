@@ -125,6 +125,7 @@ export const contribution = pgTable(
     index().on(contributions.studentId),
     index().on(contributions.academicYearId),
     index().on(contributions.facultyId),
+    index().on(contributions.createdAt), // for pagination
   ],
 );
 

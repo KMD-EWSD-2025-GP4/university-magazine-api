@@ -103,6 +103,7 @@ The server will start on http://localhost:3001 by default (or the port specified
 | DB_URL     | PostgreSQL connection URL | postgress://postgres:postgres@localhost:5432/university_magazine_db |
 | JWT_SECRET | JWT signing secret        | (Set in .env)                                                    |
 | API_URL    | Base API URL              | http://localhost:3001                                            |
+| CLIENT_URL    | Base Client URL              | http://localhost:3000                                            |
 | EMAIL_FROM | Email sender address      | (Set in .env)                                                    |
 | RESEND_API_KEY | Resend API Key        | (Set in .env)                                                    |
 | AWS_ACCESS_KEY_ID | AWS Access Key ID        | (Set in .env)                                                    |
