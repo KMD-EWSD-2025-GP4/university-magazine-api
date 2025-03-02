@@ -28,6 +28,7 @@ build/
 
 # Misc
 .DS_Store
+*.ignore.*
 
 # Env files
 .env

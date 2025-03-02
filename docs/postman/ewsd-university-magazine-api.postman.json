@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "b7d773db-ecc6-4230-a055-fa3bbe84253b",
+		"_postman_id": "43dcecfa-bbf7-4e7c-bd2b-40865ea292e7",
 		"name": "EWSD University Magazine API",
 		"description": "API collection for EWSD University Magazine project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "22585791"
+		"_exporter_id": "8103362"
 	},
 	"item": [
 		{
@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"John Doe\",\n  \"facultyId\": \"faculty-id\"\n}"
+							"raw": "{\n  \"email\": \"guest1@gmail.com\",\n  \"password\": \"password123\",\n  \"name\": \"John Doe\",\n  \"facultyId\": \"3220ffe0-44f9-4a7e-9c19-4bc7bdd07f2d\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/register",
@@ -41,6 +41,22 @@
 				},
 				{
 					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"authToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -51,7 +67,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+							"raw": "{\n  \"email\": \"student1@gmail.com\",\n  \"password\": \"student1\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/login",
@@ -64,7 +80,97 @@
 								"login"
 							]
 						},
-						"description": "Login user and get authentication token"
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
+					},
+					"response": []
+				},
+				{
+					"name": "Login Marketing Manager",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"marketingManagerAuthToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"yanwaipann@gmail.com\",\n  \"password\": \"student1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
+					},
+					"response": []
+				},
+				{
+					"name": "Login Guest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"guestAuthToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"guest1@gmail.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
 					},
 					"response": []
 				},
@@ -297,7 +403,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/academic/academic-year/by-date",
+							"raw": "{{baseUrl}}/api/academic/academic-year/by-date?date=2024-01-01",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -591,7 +697,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01\",\n  \"finalClosureDate\": \"2024-07-01\"\n}"
+							"raw": "{\n    \"startDate\": \"2025-01-01T00:00:00.000Z\",\n    \"endDate\": \"2025-12-31T23:59:59.999Z\",\n    \"newClosureDate\": \"2025-06-01T00:00:00.000Z\",\n    \"finalClosureDate\": \"2025-07-01T00:00:00.000Z\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/admin/academic-year",
@@ -766,6 +872,381 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Contributions Management",
+			"item": [
+				{
+					"name": "Submit New Contribution",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Email Test\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\" // path is obtained from GET pre-signed url available in uploads collection\n    },\n    \"images\": [\n        {\n            \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit New Contribution Comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": \"Hello test... x3 Email Check\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/:id/comment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								":id",
+								"comment"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "d3fde254-2e46-4bfa-aaba-0653e143b5dc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Contributions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/my?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"my"
+							],
+							"query": [
+								{
+									"key": "cursor",
+									"value": "MjAyNS0wMy0wMlQwODo0Mjo0NC40MTZaQDE3NDA5MTAzNjk3NzY=",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Faculty Selected Contributions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{guestAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/faculty/selected?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"faculty",
+								"selected"
+							],
+							"query": [
+								{
+									"key": "cursor",
+									"value": "MjAyNS0wMy0wMlQwODo0MjozNS42ODlaQDE3NDA5MDU2NTY2ODM=",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Contribution by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"First Contrib\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"/arts-123\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "d3fde254-2e46-4bfa-aaba-0653e143b5dc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Contribution by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"First Contribbb\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\" // path is obtained from GET pre-signed url available in \n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5a7f19e7-76bb-427d-8327-3e0a94b7b4c4"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{authToken}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Uploads",
+			"item": [
+				{
+					"name": "Get Pre-signed Upload URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Set generated presigned upload url\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(",
+									"        \"lastGeneratedPresignedUploadURL\", jsonData.url",
+									"        )",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"First Contribbb\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"/arts-919\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/upload/presigned-url?fileName=hello.jpeg",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"upload",
+								"presigned-url"
+							],
+							"query": [
+								{
+									"key": "fileName",
+									"value": "hello.jpeg"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload to S3 Pre-signed URL",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "/Users/zer0exploit/Pictures/Wallpapers/eve_liu_1.jpeg"
+							}
+						},
+						"url": {
+							"raw": "{{lastGeneratedPresignedUploadURL}}",
+							"host": [
+								"{{lastGeneratedPresignedUploadURL}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{authToken}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
 		}
 	],
 	"event": [
@@ -800,6 +1281,18 @@
 			"key": "authToken",
 			"value": "your-auth-token-here",
 			"type": "string"
+		},
+		{
+			"key": "lastGeneratedPresignedUploadURL",
+			"value": ""
+		},
+		{
+			"key": "marketingManagerAuthToken",
+			"value": ""
+		},
+		{
+			"key": "guestAuthToken",
+			"value": ""
 		}
 	]
 }

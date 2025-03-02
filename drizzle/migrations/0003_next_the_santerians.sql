@@ -1,0 +1,1 @@
+CREATE INDEX "contributions_created_at_index" ON "contributions" USING btree ("created_at");
