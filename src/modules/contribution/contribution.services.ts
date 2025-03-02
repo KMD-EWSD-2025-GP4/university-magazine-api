@@ -354,8 +354,6 @@ export async function listMyContributions(
     throw new ValidationError('Limit must be less than or equal to 20');
   }
 
-  console.log({ studentId });
-
   const items = await db
     .select()
     .from(contribution)
