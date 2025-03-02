@@ -55,3 +55,12 @@ export type PaginationSchema = z.infer<typeof paginationSchema>;
 export const listContributionsJSONSchema = {
   querystring: zodToJsonSchema(paginationSchema, 'paginationSchema'),
 };
+
+const createCommentSchema = z.object({ comment: z.string() });
+
+export type CreateCommentSchema = z.infer<typeof createCommentSchema>;
+
+export const createCommentSchemaJSONSchema = {
+  params: zodToJsonSchema(z.object({ id: z.string().uuid() })),
+  body: zodToJsonSchema(createCommentSchema, 'createCommentSchema'),
+};

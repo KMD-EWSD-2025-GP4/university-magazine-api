@@ -2,12 +2,18 @@ import { eq, and, sql, desc, aliasedTable } from 'drizzle-orm';
 
 import {
   user,
+  comment,
   contribution,
   academicYear,
   contributionAsset,
 } from '../../db/schema';
 import { db } from '../../db';
 
+import {
+  sendEmail,
+  newCommentEmailTemplate,
+  newContributionEmailTemplate,
+} from '../../utils/email';
 import {
   encodeToken,
   PaginationParams,
@@ -16,15 +22,16 @@ import {
   createPaginationQuery,
 } from '../../utils/pagination';
 import { logger } from '../../utils/logger';
-import { ValidationError } from '../../utils/errors';
 import { generatePresignedDownloadUrl } from '../../utils/s3';
-import { sendEmail, newContributionEmailTemplate } from '../../utils/email';
+import { ValidationError, ForbiddenError } from '../../utils/errors';
 
 type contributionAssetType = {
   contributionId: string;
   type: 'article' | 'image';
   filePath: string;
 };
+
+type commentType = { by: string; content: string; createdAt: Date | null };
 
 export async function createContribution(
   student: Partial<typeof user.$inferSelect>,
@@ -66,7 +73,7 @@ export async function createContribution(
     .where(
       and(
         sql`${now} >= ${academicYear.startDate}`,
-        sql`${now} <= ${academicYear.newClosureDate}`,
+        sql`${now} <= ${academicYear.endDate}`,
       ),
     )
     .orderBy(desc(academicYear.startDate))
@@ -158,12 +165,13 @@ export async function createContribution(
 
 export async function getContribution(
   contributionId: string,
-  studentId: string,
+  currentUser: Partial<typeof user.$inferSelect>,
 ): Promise<{
   success: boolean;
   data:
     | (typeof contribution.$inferSelect & {
         assets: (typeof contributionAsset.$inferSelect)[];
+        comments: commentType[] | [];
       })
     | [];
 }> {
@@ -171,10 +179,11 @@ export async function getContribution(
     .select()
     .from(contribution)
     .where(
-      and(
-        eq(contribution.id, contributionId),
-        eq(contribution.studentId, studentId),
-      ),
+      eq(contribution.id, contributionId),
+      // and(
+      //   eq(contribution.id, contributionId),
+      //   eq(contribution.studentId, studentId),
+      // ),
     )
     .limit(1);
 
@@ -183,6 +192,33 @@ export async function getContribution(
       success: true,
       data: [],
     };
+  }
+
+  // logic for additional roles can be added here
+
+  // Check access permissions for guest/student roles
+  // A guest cannot view contribution that is not selected and not under their faculty
+  // A student cannot view contribution that is not theirs and is not selected
+  if (
+    currentUser.role === 'student' &&
+    currentUser.id !== contributionData[0].studentId
+  ) {
+    if (contributionData[0].status !== 'selected') {
+      throw new ForbiddenError(
+        'You do not have enough permission to view this contribution',
+      );
+    }
+  }
+
+  if (currentUser.role === 'guest') {
+    if (
+      contributionData[0].status !== 'selected' ||
+      currentUser.facultyId !== contributionData[0].facultyId
+    ) {
+      throw new ForbiddenError(
+        'You do not have enough permission to view this contribution',
+      );
+    }
   }
 
   const assets = await db
@@ -198,11 +234,31 @@ export async function getContribution(
     })),
   );
 
+  let comments: commentType[] = [];
+  // return comment for the contribution if role is marketing coordinator or student is owner
+  if (
+    currentUser.role === 'marketing_coordinator' ||
+    currentUser.id === contributionData[0].studentId
+  ) {
+    const coordinator = aliasedTable(user, 'marketingCoordinator');
+
+    comments = await db
+      .select({
+        by: coordinator.name,
+        content: comment.content,
+        createdAt: comment.createdAt,
+      })
+      .from(comment)
+      .innerJoin(coordinator, eq(coordinator.id, comment.userId))
+      .where(eq(comment.contributionId, contributionId));
+  }
+
   return {
     success: true,
     data: {
       ...contributionData[0],
       assets: assetsWithUrls,
+      comments,
     },
   };
 }
@@ -297,6 +353,8 @@ export async function listMyContributions(
   if (limit > 20) {
     throw new ValidationError('Limit must be less than or equal to 20');
   }
+
+  console.log({ studentId });
 
   const items = await db
     .select()
@@ -444,5 +502,69 @@ export async function listFacultySelectedContributions(
   return {
     items: itemsWithAssets,
     nextCursor: nextCursor ? encodeToken(nextCursor) : nextCursor,
+  };
+}
+
+export async function createComment(
+  contributionId: string,
+  currentUser: Partial<typeof user.$inferSelect>,
+  data: { comment: string },
+): Promise<{ success: boolean; comment: string }> {
+  // Check if contribution exists
+  const contributionData = await db
+    .select()
+    .from(contribution)
+    .where(eq(contribution.id, contributionId))
+    .limit(1);
+
+  if (contributionData.length === 0)
+    throw new ValidationError('Contribution not found');
+
+  // add comment
+  const [newComment] = await db
+    .insert(comment)
+    .values({
+      contributionId,
+      content: data.comment,
+      userId: currentUser.id!,
+    })
+    .returning();
+
+  if (newComment) {
+    // send email to student
+    const [student] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, contributionData[0].studentId))
+      .limit(1);
+
+    if (student) {
+      const emailData = {
+        title: contributionData[0].title,
+        contributionId: contributionData[0].id,
+        student: {
+          name: student.name!,
+          email: student.email!,
+        },
+        marketingCoordinator: {
+          name: currentUser.name!,
+        },
+      };
+      // Send email notification to faculty's marketing coordinator
+      const result = await sendEmail({
+        to: student.email,
+        subject: '🎉 New Comment on your Contribution',
+        html: newCommentEmailTemplate(emailData),
+      });
+
+      if (result.success === false) {
+        logger.error(`Error sending email: ${result.error}`);
+      }
+    }
+  }
+
+  return {
+    success: true,
+    comment: newComment.content,
   };
 }

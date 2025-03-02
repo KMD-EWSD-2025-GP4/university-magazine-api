@@ -1,17 +1,19 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import {
+  createComment,
   getContribution,
   createContribution,
   updateContribution,
   listMyContributions,
   listFacultySelectedContributions,
-} from './student.services';
+} from './contribution.services';
 
 import {
   PaginationSchema,
+  CreateCommentSchema,
   CreateContributionSchema,
   UpdateContributionSchema,
-} from './student.schema';
+} from './contribution.schema';
 
 import { handleError } from '../../utils/errors';
 
@@ -34,7 +36,7 @@ export async function getContributionHandler(
 ): Promise<void> {
   try {
     const { id } = req.params as { id: string };
-    const contribution = await getContribution(id, req.user.id);
+    const contribution = await getContribution(id, req.user);
     res.send(contribution);
   } catch (error) {
     handleError(error, req, res);
@@ -79,6 +81,20 @@ export async function listFacultySelectedContributionsHandler(
       params,
     );
     res.send(contributions);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function createCommentHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const { id } = req.params as { id: string };
+    const data = req.body as CreateCommentSchema;
+    const resp = await createComment(id, req.user, data);
+    res.status(200).send(resp);
   } catch (error) {
     handleError(error, req, res);
   }

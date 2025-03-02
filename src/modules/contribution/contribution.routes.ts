@@ -1,25 +1,27 @@
 import { FastifyInstance } from 'fastify';
 
 import {
+  createCommentHandler,
   getContributionHandler,
   updateContributionHandler,
   createContributionHandler,
   listMyContributionsHandler,
   listFacultySelectedContributionsHandler,
-} from './student.controllers';
+} from './contribution.controllers';
 
 import {
   listContributionsJSONSchema,
   createContributionJSONSchema,
   updateContributionJSONSchema,
-} from './student.schema';
+  createCommentSchemaJSONSchema,
+} from './contribution.schema';
 
 import { checkRole } from '../../middleware/auth';
 import { authenticateRequest } from '../../middleware/auth';
 
-export async function studentRoutes(app: FastifyInstance): Promise<void> {
+export async function contributionRoutes(app: FastifyInstance): Promise<void> {
   app.post(
-    '/contributions',
+    '/',
     {
       schema: createContributionJSONSchema,
       onRequest: [authenticateRequest],
@@ -29,16 +31,16 @@ export async function studentRoutes(app: FastifyInstance): Promise<void> {
   );
 
   app.get(
-    '/contributions/:id',
+    '/:id',
     {
       onRequest: [authenticateRequest],
-      preHandler: [checkRole(['student'])],
+      preHandler: [checkRole(['student', 'guest', 'marketing_coordinator'])],
     },
     getContributionHandler,
   );
 
   app.put(
-    '/contributions/:id',
+    '/:id',
     {
       schema: updateContributionJSONSchema,
       onRequest: [authenticateRequest],
@@ -47,8 +49,18 @@ export async function studentRoutes(app: FastifyInstance): Promise<void> {
     updateContributionHandler,
   );
 
+  app.post(
+    '/:id/comment',
+    {
+      schema: createCommentSchemaJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    createCommentHandler,
+  );
+
   app.get(
-    '/contributions/my',
+    '/my',
     {
       schema: listContributionsJSONSchema,
       onRequest: [authenticateRequest],
@@ -58,12 +70,14 @@ export async function studentRoutes(app: FastifyInstance): Promise<void> {
   );
 
   app.get(
-    '/contributions/faculty/selected',
+    '/faculty/selected',
     {
       schema: listContributionsJSONSchema,
       onRequest: [authenticateRequest],
-      preHandler: [checkRole(['student'])],
+      preHandler: [checkRole(['student', 'guest'])],
     },
     listFacultySelectedContributionsHandler,
   );
+
+  // More route for marketing_coordinator role here (such as: all contributions, update contribution status, etc.)
 }
