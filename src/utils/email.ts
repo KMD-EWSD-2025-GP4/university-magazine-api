@@ -54,7 +54,7 @@ export const newContributionEmailTemplate = (data: {
           </p>
           
           <div style="text-align: center; margin-top: 30px;">
-            <a href="${process.env.CLIENT_URL}/contributions/${data.newContributionId}" 
+            <a href="${process.env.FRONTEND_URL}/contributions/${data.newContributionId}" 
                style="display: inline-block; padding: 12px 24px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
                View Contribution
             </a>

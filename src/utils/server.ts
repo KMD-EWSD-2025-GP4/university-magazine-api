@@ -17,7 +17,9 @@ export async function createServer(): Promise<FastifyInstance> {
   server.register(fastifyRawBody);
   server.register(cors, {
     credentials: true,
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL
+      ? [process.env.FRONTEND_URL, 'http://localhost:5173']
+      : ['http://localhost:5173'],
   });
 
   // register routes
