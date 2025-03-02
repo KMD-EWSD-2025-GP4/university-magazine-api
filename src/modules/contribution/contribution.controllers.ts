@@ -77,7 +77,7 @@ export async function listFacultySelectedContributionsHandler(
   try {
     const params = req.query as PaginationSchema;
     const contributions = await listFacultySelectedContributions(
-      req.user.facultyId,
+      req.user.facultyId!,
       params,
     );
     res.send(contributions);

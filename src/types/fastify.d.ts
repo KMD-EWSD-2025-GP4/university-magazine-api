@@ -1,5 +1,4 @@
-import { FastifyRequest } from 'fastify';
-import { user } from '../db/schema';
+import { Role } from 'roles';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -8,7 +7,7 @@ declare module 'fastify' {
       name: string;
       email: string;
       role: Role;
-      facultyId: string;
+      facultyId: string | null | undefined;
     };
   }
 }
