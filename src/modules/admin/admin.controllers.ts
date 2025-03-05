@@ -13,8 +13,9 @@ import {
   updateTerm,
   createUser,
   changeUserFaculty,
+  changeUserStatus,
 } from './admin.services';
-import { AppError, handleError } from '../../utils/errors';
+import { handleError } from '../../utils/errors';
 import {
   changeUserRoleBodySchema,
   changeUserFacultyBodySchema,
@@ -29,9 +30,9 @@ import {
   updateAcademicYearBodySchema,
   updateFacultyBodySchema,
   updateTermBodySchema,
+  changeUserStatusBodySchema,
 } from './admin.schema';
 import { Role } from '../../types/roles';
-import { logger } from '../../utils/logger';
 
 export async function createUserHandler(
   req: FastifyRequest,
@@ -104,8 +105,8 @@ export async function updateFacultyHandler(
   res: FastifyReply,
 ) {
   try {
-    const { id, name } = req.body as updateFacultyBodySchema;
-    await updateFaculty(id, name);
+    const { id, name, status } = req.body as updateFacultyBodySchema;
+    await updateFaculty(id, name, status);
     res.status(200).send({ message: 'Faculty updated successfully' });
   } catch (error) {
     handleError(error, req, res);
@@ -120,6 +121,19 @@ export async function changeUserFacultyHandler(
     const { userId, newFacultyId } = req.body as changeUserFacultyBodySchema;
     await changeUserFaculty(userId, newFacultyId);
     res.status(200).send({ message: 'User faculty changed successfully' });
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function changeUserStatusHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+) {
+  try {
+    const { userId, status } = req.body as changeUserStatusBodySchema;
+    await changeUserStatus(userId, status);
+    res.status(200).send({ message: 'User status changed successfully' });
   } catch (error) {
     handleError(error, req, res);
   }
@@ -162,7 +176,7 @@ export async function updateAcademicYearHandler(
   res: FastifyReply,
 ) {
   try {
-    const { id, startDate, endDate, newClosureDate, finalClosureDate } =
+    const { id, startDate, endDate, newClosureDate, finalClosureDate, status } =
       req.body as updateAcademicYearBodySchema;
     await updateAcademicYear(
       id,
@@ -170,6 +184,7 @@ export async function updateAcademicYearHandler(
       endDate,
       newClosureDate,
       finalClosureDate,
+      status,
     );
     res.status(200).send({ message: 'Academic year updated successfully' });
   } catch (error) {

@@ -72,6 +72,20 @@ export async function changeUserFaculty(userId: string, newFacultyId: string) {
   }
 }
 
+export async function changeUserStatus(
+  userId: string,
+  status: 'active' | 'inactive',
+) {
+  try {
+    await db.update(user).set({ status }).where(eq(user.id, userId));
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid user id');
+    }
+    throw error;
+  }
+}
+
 export async function createFaculty(facultyName: string) {
   try {
     await db.insert(faculty).values({ name: facultyName });
@@ -94,7 +108,11 @@ export async function deleteFaculty(facultyId: string) {
     throw error;
   }
 }
-export async function updateFaculty(facultyId: string, facultyName: string) {
+export async function updateFaculty(
+  facultyId: string,
+  facultyName: string,
+  status: 'active' | 'inactive',
+) {
   try {
     // check if faculty already exists or not
     const existingFaculty = await db
@@ -107,7 +125,7 @@ export async function updateFaculty(facultyId: string, facultyName: string) {
     }
     await db
       .update(faculty)
-      .set({ name: facultyName })
+      .set({ name: facultyName, status })
       .where(eq(faculty.id, facultyId));
   } catch (error) {
     if (error instanceof DatabaseError && error.code === '22P02') {
@@ -161,6 +179,7 @@ export async function updateAcademicYear(
   endDate: Date,
   newClosureDate: Date,
   finalClosureDate: Date,
+  status: 'active' | 'inactive',
 ) {
   try {
     // check if academic year exists or not
@@ -183,6 +202,7 @@ export async function updateAcademicYear(
         endDate: convertedEndDate,
         newClosureDate: convertedNewClosureDate,
         finalClosureDate: convertedFinalClosureDate,
+        status,
       })
       .where(eq(academicYear.id, academicYearId));
   } catch (error) {
