@@ -48,8 +48,23 @@ const changeUserRoleBodySchema = z.object({
   ]),
 });
 
-export type changeUserRoleBodySchema = z.infer<typeof changeUserRoleBodySchema>;
+const changeUserStatusBodySchema = z.object({
+  userId: z.string(),
+  status: z.enum(['active', 'inactive']),
+});
 
+export type changeUserStatusBodySchema = z.infer<
+  typeof changeUserStatusBodySchema
+>;
+
+export const changeUserStatusJSONSchema = {
+  body: zodToJsonSchema(
+    changeUserStatusBodySchema,
+    'changeUserStatusBodySchema',
+  ),
+};
+
+export type changeUserRoleBodySchema = z.infer<typeof changeUserRoleBodySchema>;
 export const changeUserRoleJSONSchema = {
   body: zodToJsonSchema(changeUserRoleBodySchema, 'changeUserRoleBodySchema'),
 };
@@ -93,6 +108,7 @@ export const deleteFacultyJSONSchema = {
 const updateFacultyBodySchema = z.object({
   id: z.string(),
   name: z.string(),
+  status: z.enum(['active', 'inactive']),
 });
 
 export type updateFacultyBodySchema = z.infer<typeof updateFacultyBodySchema>;
@@ -125,6 +141,7 @@ const updateAcademicYearBodySchema = z.object({
   endDate: z.date(),
   newClosureDate: z.date(),
   finalClosureDate: z.date(),
+  status: z.enum(['active', 'inactive']),
 });
 
 export type updateAcademicYearBodySchema = z.infer<

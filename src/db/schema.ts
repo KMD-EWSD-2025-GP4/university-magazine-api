@@ -27,6 +27,16 @@ export const userBrowsersEnum = pgEnum('user_browsers', [
   'other',
 ]);
 
+export const userStatusEnum = pgEnum('user_status', ['active', 'inactive']);
+export const academicYearStatusEnum = pgEnum('academic_year_status', [
+  'active',
+  'inactive',
+]);
+export const facultyStatusEnum = pgEnum('faculty_status', [
+  'active',
+  'inactive',
+]);
+
 export const user = pgTable(
   'users',
   {
@@ -39,6 +49,7 @@ export const user = pgTable(
     lastLogin: timestamp('last_login', { withTimezone: true }),
     totalLogins: integer('total_logins').notNull().default(0),
     browser: userBrowsersEnum('browser'),
+    status: userStatusEnum('status').notNull().default('active'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
@@ -54,6 +65,7 @@ export const faculty = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull().unique(),
+    status: facultyStatusEnum('status').notNull().default('active'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
@@ -72,6 +84,7 @@ export const academicYear = pgTable(
     finalClosureDate: timestamp('final_closure_date', {
       withTimezone: true,
     }).notNull(),
+    status: academicYearStatusEnum('status').notNull().default('active'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },
