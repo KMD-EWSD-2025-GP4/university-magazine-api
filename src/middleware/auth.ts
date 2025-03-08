@@ -41,8 +41,7 @@ export async function authenticateRequest(
 
     request.user = userResult[0];
   } catch (error) {
-    logger.error(error);
-    // logger.error(`Authentication error: ${error}`);
+    logger.error(`Authentication error: ${error}`);
     if (error instanceof jwt.JsonWebTokenError) {
       throw new UnauthorizedError('Invalid token');
     }
