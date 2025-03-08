@@ -7,6 +7,7 @@ import {
   createContributionHandler,
   listMyContributionsHandler,
   listFacultySelectedContributionsHandler,
+  updateContributionStatusHandler,
 } from './contribution.controllers';
 
 import {
@@ -14,6 +15,7 @@ import {
   createContributionJSONSchema,
   updateContributionJSONSchema,
   createCommentSchemaJSONSchema,
+  updateContributionStatusJSONSchema,
 } from './contribution.schema';
 
 import { checkRole } from '../../middleware/auth';
@@ -79,5 +81,13 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
     listFacultySelectedContributionsHandler,
   );
 
-  // More route for marketing_coordinator role here (such as: all contributions, update contribution status, etc.)
+  app.put(
+    '/:id/status',
+    {
+      schema: updateContributionStatusJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    updateContributionStatusHandler,
+  );
 }

@@ -6,6 +6,7 @@ import {
   updateContribution,
   listMyContributions,
   listFacultySelectedContributions,
+  updateContributionStatus,
 } from './contribution.services';
 
 import {
@@ -13,6 +14,7 @@ import {
   CreateCommentSchema,
   CreateContributionSchema,
   UpdateContributionSchema,
+  UpdateContributionStatusSchema,
 } from './contribution.schema';
 
 import { handleError } from '../../utils/errors';
@@ -95,6 +97,23 @@ export async function createCommentHandler(
     const data = req.body as CreateCommentSchema;
     const resp = await createComment(id, req.user, data);
     res.status(200).send(resp);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function updateContributionStatusHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const { id } = req.params as { id: string };
+    const data = req.body as UpdateContributionStatusSchema;
+    const contribution = await updateContributionStatus(
+      id,
+      data.status as 'selected' | 'rejected',
+    );
+    res.status(200).send(contribution);
   } catch (error) {
     handleError(error, req, res);
   }
