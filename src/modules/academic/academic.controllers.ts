@@ -6,12 +6,14 @@ import {
   getAcademicYearByDate,
   getTerms,
   getTermById,
+  getFacultyById,
 } from './academic.services';
 import { handleError } from '../../utils/errors';
 import {
   getAcademicYearByIdParamsSchema,
   getAcademicYearByDateParamsSchema,
   getTermByIdParamsSchema,
+  getFacultyByIdParamsSchema,
 } from './academic.schema';
 import { logger } from '../../utils/logger';
 
@@ -22,6 +24,19 @@ export async function getAllFacultiesHandler(
   try {
     const faculties = await getAllFaculties();
     res.status(200).send(faculties);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function getFacultyByIdHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+) {
+  try {
+    const { id } = req.params as getFacultyByIdParamsSchema;
+    const faculty = await getFacultyById(id);
+    res.status(200).send(faculty);
   } catch (error) {
     handleError(error, req, res);
   }

@@ -9,6 +9,26 @@ export async function getAllFaculties() {
   return await db.select().from(faculty);
 }
 
+export async function getFacultyById(facultyId: string) {
+  try {
+    const result = await db
+      .select()
+      .from(faculty)
+      .where(eq(faculty.id, facultyId));
+
+    if (!result || result.length === 0) {
+      throw new ValidationError('Faculty not found');
+    }
+
+    return result[0];
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid faculty id');
+    }
+    throw error;
+  }
+}
+
 export async function getAcademicYears() {
   return await db.select().from(academicYear);
 }

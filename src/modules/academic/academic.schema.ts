@@ -16,6 +16,21 @@ export const getAcademicYearByIdJSONSchema = {
   ),
 };
 
+const getFacultyByIdParamsSchema = z.object({
+  id: z.string(),
+});
+
+export type getFacultyByIdParamsSchema = z.infer<
+  typeof getFacultyByIdParamsSchema
+>;
+
+export const getFacultyByIdJSONSchema = {
+  params: zodToJsonSchema(
+    getFacultyByIdParamsSchema,
+    'getFacultyByIdParamsSchema',
+  ),
+};
+
 const getAcademicYearByDateParamsSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });

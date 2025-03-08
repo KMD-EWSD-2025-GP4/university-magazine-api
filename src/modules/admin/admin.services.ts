@@ -108,6 +108,7 @@ export async function deleteFaculty(facultyId: string) {
     throw error;
   }
 }
+
 export async function updateFaculty(
   facultyId: string,
   facultyName: string,
@@ -118,9 +119,8 @@ export async function updateFaculty(
     const existingFaculty = await db
       .select()
       .from(faculty)
-      .where(eq(faculty.id, facultyId))
-      .limit(1);
-    if (existingFaculty.length === 0) {
+      .where(eq(faculty.id, facultyId));
+    if (!existingFaculty || existingFaculty.length === 0) {
       throw new ValidationError('Faculty does not exist');
     }
     await db

@@ -6,11 +6,13 @@ import {
   getAcademicYearByDateHandler,
   getTermsHandler,
   getTermByIdHandler,
+  getFacultyByIdHandler,
 } from './academic.controllers';
 import {
   getAcademicYearByIdJSONSchema,
   getAcademicYearByDateJSONSchema,
   getTermByIdJSONSchema,
+  getFacultyByIdJSONSchema,
 } from './academic.schema';
 import { authenticateRequest } from '../../middleware/auth';
 
@@ -21,6 +23,15 @@ export async function academicRoutes(app: FastifyInstance) {
       onRequest: [authenticateRequest],
     },
     getAllFacultiesHandler,
+  );
+
+  app.get(
+    '/faculty/by-id/:id',
+    {
+      schema: getFacultyByIdJSONSchema,
+      onRequest: [authenticateRequest],
+    },
+    getFacultyByIdHandler,
   );
 
   app.get(

@@ -481,6 +481,40 @@
 						"description": "Get term by ID"
 					},
 					"response": []
+				},
+				{
+					"name": "Get Faculty by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/academic/faculty/by-id/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"academic",
+								"faculty",
+								"by-id",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "faculty-id",
+									"description": "ID of the faculty to retrieve"
+								}
+							]
+						},
+						"description": "Get a faculty by its ID"
+					},
+					"response": []
 				}
 			]
 		},
@@ -587,6 +621,39 @@
 					"response": []
 				},
 				{
+					"name": "Change User Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"user-id\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/change-user-status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"change-user-status"
+							]
+						},
+						"description": "Change a user's status (active/inactive) (Admin only)"
+					},
+					"response": []
+				},
+				{
 					"name": "Create Faculty",
 					"request": {
 						"method": "POST",
@@ -635,7 +702,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id\": \"faculty-id\",\n  \"name\": \"Updated Faculty Name\"\n}"
+							"raw": "{\n  \"id\": \"faculty-id\",\n  \"name\": \"Updated Faculty Name\",\n  \"status\": \"active\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/admin/faculty",
@@ -730,7 +797,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id\": \"academic-year-id\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01\",\n  \"finalClosureDate\": \"2024-07-01\"\n}"
+							"raw": "{\n  \"id\": \"academic-year-id\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"newClosureDate\": \"2024-06-01\",\n  \"finalClosureDate\": \"2024-07-01\",\n  \"status\": \"active\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/admin/academic-year",

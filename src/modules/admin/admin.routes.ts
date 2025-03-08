@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import {
   changeUserFacultyHandler,
   changeUserRoleHandler,
+  changeUserStatusHandler,
   createAcademicYearHandler,
   createFacultyHandler,
   deleteAcademicYearHandler,
@@ -15,6 +16,7 @@ import {
 } from './admin.controllers';
 import {
   changeUserRoleJSONSchema,
+  changeUserStatusJSONSchema,
   createAcademicYearJSONSchema,
   createFacultyJSONSchema,
   deleteAcademicYearJSONSchema,
@@ -59,6 +61,16 @@ export async function adminRoutes(app: FastifyInstance) {
       preHandler: [checkRole(['admin'])],
     },
     changeUserFacultyHandler,
+  );
+
+  app.post(
+    '/change-user-status',
+    {
+      schema: changeUserStatusJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['admin'])],
+    },
+    changeUserStatusHandler,
   );
 
   app.post(

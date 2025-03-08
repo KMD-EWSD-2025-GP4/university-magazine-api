@@ -8,24 +8,31 @@ import { eq } from 'drizzle-orm';
 const faculties = [
   {
     name: 'Faculty of Science',
+    status: 'active' as const,
   },
   {
     name: 'Faculty of Engineering',
+    status: 'active' as const,
   },
   {
     name: 'Faculty of Business',
+    status: 'active' as const,
   },
   {
     name: 'Faculty of Arts',
+    status: 'active' as const,
   },
   {
     name: 'Faculty of Law',
+    status: 'active' as const,
   },
   {
     name: 'Faculty of Medicine',
+    status: 'active' as const,
   },
   {
     name: 'Faculty of Education',
+    status: 'active' as const,
   },
 ];
 
@@ -50,6 +57,7 @@ export const generateAcademicYears = async () => {
       endDate: new Date('2024-12-31'),
       newClosureDate: new Date('2024-06-01'),
       finalClosureDate: new Date('2024-07-01'),
+      status: 'active' as const,
     },
   ];
   academicYears.forEach(async (item) => {
@@ -63,6 +71,7 @@ export const seedAdminUser = async () => {
     password: 'admin',
     name: 'Admin User',
     role: 'admin' as const,
+    status: 'active' as const,
   };
   // check if user already exists
   const userExists = await db
@@ -85,6 +94,7 @@ export const seedAdminUser = async () => {
     passwordHash: hashedPassword,
     role: adminUser.role,
     facultyId: adminFaculty[0].id,
+    status: adminUser.status,
   });
 };
 
@@ -95,18 +105,21 @@ export const seedStudentUsers = async () => {
       password: 'student1',
       name: 'Student One',
       role: 'student' as const,
+      status: 'active' as const,
     },
     {
       email: 'student2@gmail.com',
       password: 'student2',
       name: 'Student Two',
       role: 'student' as const,
+      status: 'active' as const,
     },
     {
       email: 'student3@gmail.com',
       password: 'student3',
       name: 'Student Three',
       role: 'student' as const,
+      status: 'active' as const,
     },
   ];
   studentUsers.forEach(async (item) => {
@@ -133,6 +146,7 @@ export const seedStudentUsers = async () => {
       passwordHash: hashedPassword,
       role: item.role,
       facultyId: randomFaculty[0].id,
+      status: item.status,
     });
   });
 };
