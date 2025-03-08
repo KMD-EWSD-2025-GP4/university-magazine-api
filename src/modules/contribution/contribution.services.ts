@@ -620,6 +620,7 @@ export async function updateContributionStatus(
 
     if (emailResult.success === false) {
       logger.error(`Error sending email: ${emailResult.error}`);
+      throw new Error('Error sending email');
     }
   }
 
