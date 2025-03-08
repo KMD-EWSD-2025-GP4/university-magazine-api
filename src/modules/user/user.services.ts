@@ -128,6 +128,15 @@ export async function registerUser(input: registerUserBodySchema) {
   if (existingUser) {
     throw new ValidationError('Email already registered');
   }
+  // check if faculty exists
+  const existingFaculty = await db
+    .select()
+    .from(faculty)
+    .where(eq(faculty.id, facultyId))
+    .limit(1);
+  if (!existingFaculty.length) {
+    throw new ValidationError('Faculty not found');
+  }
 
   // Hash password
   const salt = await bcrypt.genSalt(10);

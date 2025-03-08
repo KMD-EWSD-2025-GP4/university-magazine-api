@@ -64,3 +64,22 @@ export const createCommentSchemaJSONSchema = {
   params: zodToJsonSchema(z.object({ id: z.string().uuid() })),
   body: zodToJsonSchema(createCommentSchema, 'createCommentSchema'),
 };
+
+const updateContributionStatusSchema = z.object({
+  status: z.enum(['selected', 'rejected']),
+});
+
+export type UpdateContributionStatusSchema = z.infer<
+  typeof updateContributionStatusSchema
+>;
+
+export const updateContributionStatusJSONSchema = {
+  params: zodToJsonSchema(
+    z.object({ id: z.string().uuid() }),
+    'updateContributionStatusSchema',
+  ),
+  body: zodToJsonSchema(
+    updateContributionStatusSchema,
+    'updateContributionStatusSchema',
+  ),
+};

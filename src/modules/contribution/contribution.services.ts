@@ -13,6 +13,7 @@ import {
   sendEmail,
   newCommentEmailTemplate,
   newContributionEmailTemplate,
+  updateContributionStatusEmailTemplate,
 } from '../../utils/email';
 import {
   encodeToken,
@@ -565,4 +566,63 @@ export async function createComment(
     success: true,
     comment: newComment.content,
   };
+}
+
+export async function updateContributionStatus(
+  contributionId: string,
+  status: 'selected' | 'rejected',
+): Promise<typeof contribution.$inferSelect> {
+  const contributionData = await db
+    .select()
+    .from(contribution)
+    .where(eq(contribution.id, contributionId))
+    .limit(1);
+
+  if (contributionData.length === 0) {
+    throw new ValidationError('Contribution not found');
+  }
+
+  if (contributionData[0].status !== 'pending') {
+    throw new ValidationError('Contribution is not pending');
+  }
+
+  const result = await db
+    .update(contribution)
+    .set({ status })
+    .where(eq(contribution.id, contributionId))
+    .returning();
+
+  if (result.length === 0) {
+    throw new ValidationError('Contribution not found');
+  }
+  //  user table to get student name and email
+  const [student] = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, result[0].studentId))
+    .limit(1);
+
+  if (student) {
+    const emailData = {
+      title: result[0].title,
+      contributionId: result[0].id,
+      student: {
+        name: student.name!,
+        email: student.email!,
+      },
+      status: result[0].status as 'selected' | 'rejected',
+    };
+    const emailResult = await sendEmail({
+      to: student.email,
+      subject: '🎉 Contribution Status Updated',
+      html: updateContributionStatusEmailTemplate(emailData),
+    });
+
+    if (emailResult.success === false) {
+      logger.error(`Error sending email: ${emailResult.error}`);
+      throw new Error('Error sending email');
+    }
+  }
+
+  return result[0];
 }
