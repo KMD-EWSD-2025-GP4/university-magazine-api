@@ -42,16 +42,19 @@ export async function authenticateRequest(
       throw new UnauthorizedError('User not found');
     }
 
+    if (userResult[0].status === 'inactive') {
+      throw new UnauthorizedError(
+        'Your account is inactive, please contact your administrator',
+      );
+    }
+
     request.user = userResult[0];
   } catch (error) {
     logger.error(`Authentication error: ${error}`);
     if (error instanceof jwt.JsonWebTokenError) {
       throw new UnauthorizedError('Invalid token');
     }
-    if (error instanceof UnauthorizedError) {
-      throw error;
-    }
-    throw new UnauthorizedError('Authentication failed');
+    throw error;
   }
 }
 

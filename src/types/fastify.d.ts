@@ -8,6 +8,7 @@ declare module 'fastify' {
       email: string;
       role: Role;
       facultyId: string | null | undefined;
+      status: 'active' | 'inactive';
     };
   }
 }
