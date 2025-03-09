@@ -28,6 +28,12 @@ export async function createUser(
     if (error instanceof DatabaseError && error.code === '23505') {
       throw new ValidationError('User already exists');
     }
+    if (error instanceof DatabaseError && error.code === '23503') {
+      throw new ValidationError('Faculty does not exist');
+    }
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid faculty id');
+    }
     throw error;
   }
 }
