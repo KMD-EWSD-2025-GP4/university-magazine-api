@@ -28,6 +28,7 @@ export async function authenticateRequest(
         id: user.id,
         email: user.email,
         role: user.role,
+        status: user.status,
         facultyId: user.facultyId,
         name: user.name,
         facultyName: faculty.name,
