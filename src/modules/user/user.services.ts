@@ -1,4 +1,5 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
+import { DatabaseError } from 'pg';
 import { db } from '../../db';
 import { faculty, user } from '../../db/schema';
 import bcrypt from 'bcryptjs';
@@ -91,72 +92,89 @@ export async function getUserById(
   callerId: string,
   callerRole: Role,
 ) {
-  // Check if caller is authorized to view user
-  if (callerId !== id && callerRole !== 'admin') {
-    throw new UnauthorizedError('Unauthorized to view user');
-  }
-  // join user with faculty as a alias facultyName
-  const result = await db
-    .select({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-      status: user.status,
-      facultyId: user.facultyId,
-      facultyName: faculty.name,
-      lastLogin: user.lastLogin,
-      totalLogins: user.totalLogins,
-      browser: user.browser,
-    })
-    .from(user)
-    .leftJoin(faculty, eq(user.facultyId, faculty.id))
-    .where(eq(user.id, id))
-    .limit(1);
-  if (!result.length) {
-    throw new NotFoundError('User not found');
-  }
+  try {
+    // Check if caller is authorized to view user
+    if (callerId !== id && callerRole !== 'admin') {
+      throw new UnauthorizedError('Unauthorized to view user');
+    }
+    // join user with faculty as a alias facultyName
+    const result = await db
+      .select({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        status: user.status,
+        facultyId: user.facultyId,
+        facultyName: faculty.name,
+        lastLogin: user.lastLogin,
+        totalLogins: user.totalLogins,
+        browser: user.browser,
+      })
+      .from(user)
+      .leftJoin(faculty, eq(user.facultyId, faculty.id))
+      .where(eq(user.id, id))
+      .limit(1);
+    if (!result.length) {
+      throw new NotFoundError('User not found');
+    }
 
-  return result[0];
+    return result[0];
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid user id');
+    }
+    throw error;
+  }
 }
 
 export async function registerUser(input: registerUserBodySchema) {
-  const { email, password, name, facultyId } = input;
+  try {
+    const { email, password, name, facultyId } = input;
 
-  const existingUser = await findUserByEmail(email);
-  if (existingUser) {
-    throw new ValidationError('Email already registered');
+    const existingUser = await findUserByEmail(email);
+    if (existingUser) {
+      throw new ValidationError('Email already registered');
+    }
+    // check if faculty exists
+    const existingFaculty = await db
+      .select()
+      .from(faculty)
+      .where(eq(faculty.id, facultyId))
+      .limit(1);
+    if (!existingFaculty.length) {
+      throw new ValidationError('Faculty not found');
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const result = await db
+      .insert(user)
+      .values({
+        email,
+        passwordHash,
+        name,
+        facultyId,
+        role: 'guest', // Default role for new registrations
+      })
+      .returning();
+    // do not return passwordHash
+    const { passwordHash: _, ...userWithoutPassword } = result[0];
+    return {
+      user: userWithoutPassword,
+      message: 'User registered successfully',
+    };
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '23505') {
+      throw new ValidationError('Email already registered');
+    }
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid faculty id');
+    }
+    throw error;
   }
-  // check if faculty exists
-  const existingFaculty = await db
-    .select()
-    .from(faculty)
-    .where(eq(faculty.id, facultyId))
-    .limit(1);
-  if (!existingFaculty.length) {
-    throw new ValidationError('Faculty not found');
-  }
-
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash(password, salt);
-
-  const result = await db
-    .insert(user)
-    .values({
-      email,
-      passwordHash,
-      name,
-      facultyId,
-      role: 'guest', // Default role for new registrations
-    })
-    .returning();
-  // do not return passwordHash
-  const { passwordHash: _, ...userWithoutPassword } = result[0];
-  return {
-    user: userWithoutPassword,
-    message: 'User registered successfully',
-  };
 }
 
 export async function loginUser(input: loginUserBodySchema) {
