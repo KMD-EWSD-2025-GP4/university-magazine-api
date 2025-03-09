@@ -14,6 +14,7 @@ import {
   createUser,
   changeUserFaculty,
   changeUserStatus,
+  updateUser,
 } from './admin.services';
 import { handleError } from '../../utils/errors';
 import {
@@ -31,6 +32,7 @@ import {
   updateFacultyBodySchema,
   updateTermBodySchema,
   changeUserStatusBodySchema,
+  updateUserBodySchema,
 } from './admin.schema';
 import { Role } from '../../types/roles';
 
@@ -43,6 +45,20 @@ export async function createUserHandler(
       req.body as createUserBodySchema;
     await createUser(email, password, role, name, facultyId);
     res.status(200).send({ message: 'User created successfully' });
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function updateUserHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+) {
+  try {
+    const { userId, password, role, facultyId, status } =
+      req.body as updateUserBodySchema;
+    await updateUser(userId, password, role, facultyId, status);
+    res.status(200).send({ message: 'User updated successfully' });
   } catch (error) {
     handleError(error, req, res);
   }

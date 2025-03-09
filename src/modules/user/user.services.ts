@@ -13,9 +13,20 @@ import {
 import { Role } from '../../types/roles';
 
 async function findUserByEmail(email: string) {
+  // join user with faculty as a alias facultyName
   const result = await db
-    .select()
+    .select({
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      name: user.name,
+      role: user.role,
+      facultyId: user.facultyId,
+      facultyName: faculty.name,
+      totalLogins: user.totalLogins,
+    })
     .from(user)
+    .leftJoin(faculty, eq(user.facultyId, faculty.id))
     .where(eq(user.email, email))
     .limit(1);
   return result[0];
@@ -80,6 +91,7 @@ export async function getUserById(
   if (callerId !== id && callerRole !== 'admin') {
     throw new UnauthorizedError('Unauthorized to view user');
   }
+  // join user with faculty as a alias facultyName
   const result = await db
     .select({
       id: user.id,
@@ -87,33 +99,15 @@ export async function getUserById(
       role: user.role,
       name: user.name,
       facultyId: user.facultyId,
+      facultyName: faculty.name,
       lastLogin: user.lastLogin,
       totalLogins: user.totalLogins,
       browser: user.browser,
     })
     .from(user)
+    .leftJoin(faculty, eq(user.facultyId, faculty.id))
     .where(eq(user.id, id))
     .limit(1);
-  if (!result.length) {
-    throw new NotFoundError('User not found');
-  }
-
-  return result[0];
-}
-
-export async function getUserByEmail(email: string) {
-  const result = await db
-    .select({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-      facultyId: user.facultyId,
-    })
-    .from(user)
-    .where(eq(user.email, email))
-    .limit(1);
-
   if (!result.length) {
     throw new NotFoundError('User not found');
   }
@@ -203,6 +197,7 @@ export async function loginUser(input: loginUserBodySchema) {
       name: existingUser.name,
       role: existingUser.role,
       facultyId: existingUser.facultyId,
+      facultyName: existingUser.facultyName,
     },
     token,
   };

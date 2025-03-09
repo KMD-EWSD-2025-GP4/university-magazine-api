@@ -14,6 +14,7 @@ import {
   deleteTermHandler,
   updateTermHandler,
   createUserHandler,
+  updateUserHandler,
 } from './admin.controllers';
 import {
   changeUserRoleJSONSchema,
@@ -30,6 +31,7 @@ import {
   updateTermJSONSchema,
   changeUserFacultyJSONSchema,
   createUserJSONSchema,
+  updateUserJSONSchema,
 } from './admin.schema';
 import { authenticateRequest } from '../../middleware/auth';
 import { checkRole } from '../../middleware/auth';
@@ -46,7 +48,7 @@ export async function adminRoutes(app: FastifyInstance) {
   );
 
   app.post(
-    '/create-user',
+    '/user',
     {
       schema: createUserJSONSchema,
       onRequest: [authenticateRequest],
@@ -55,34 +57,14 @@ export async function adminRoutes(app: FastifyInstance) {
     createUserHandler,
   );
 
-  app.post(
-    '/change-user-role',
+  app.put(
+    '/user',
     {
-      schema: changeUserRoleJSONSchema,
+      schema: updateUserJSONSchema,
       onRequest: [authenticateRequest],
       preHandler: [checkRole(['admin'])],
     },
-    changeUserRoleHandler,
-  );
-
-  app.post(
-    '/change-user-faculty',
-    {
-      schema: changeUserFacultyJSONSchema,
-      onRequest: [authenticateRequest],
-      preHandler: [checkRole(['admin'])],
-    },
-    changeUserFacultyHandler,
-  );
-
-  app.post(
-    '/change-user-status',
-    {
-      schema: changeUserStatusJSONSchema,
-      onRequest: [authenticateRequest],
-      preHandler: [checkRole(['admin'])],
-    },
-    changeUserStatusHandler,
+    updateUserHandler,
   );
 
   app.post(

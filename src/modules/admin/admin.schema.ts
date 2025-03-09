@@ -21,6 +21,26 @@ export const createUserJSONSchema = {
   body: zodToJsonSchema(createUserBodySchema, 'createUserBodySchema'),
 };
 
+const updateUserBodySchema = z.object({
+  userId: z.string(),
+  password: z.string().optional(),
+  role: z.enum([
+    'guest',
+    'student',
+    'marketing_coordinator',
+    'marketing_manager',
+    'admin',
+  ]),
+  facultyId: z.string(),
+  status: z.enum(['active', 'inactive']),
+});
+
+export type updateUserBodySchema = z.infer<typeof updateUserBodySchema>;
+
+export const updateUserJSONSchema = {
+  body: zodToJsonSchema(updateUserBodySchema, 'updateUserBodySchema'),
+};
+
 const resetUserPasswordBodySchema = z.object({
   userId: z.string(),
   newPassword: z.string(),
