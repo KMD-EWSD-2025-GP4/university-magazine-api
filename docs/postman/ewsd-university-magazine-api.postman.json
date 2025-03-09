@@ -555,105 +555,6 @@
 					"response": []
 				},
 				{
-					"name": "Change User Role",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userId\": \"user-id\",\n  \"newRole\": \"admin\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/admin/change-user-role",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"admin",
-								"change-user-role"
-							]
-						},
-						"description": "Change a user's role (Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Change User Faculty",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userId\": \"user-id\",\n  \"newFacultyId\": \"faculty-id\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/admin/change-user-faculty",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"admin",
-								"change-user-faculty"
-							]
-						},
-						"description": "Change a user's faculty (Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Change User Status",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userId\": \"user-id\",\n  \"status\": \"active\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/admin/change-user-status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"admin",
-								"change-user-status"
-							]
-						},
-						"description": "Change a user's status (active/inactive) (Admin only)"
-					},
-					"response": []
-				},
-				{
 					"name": "Create Faculty",
 					"request": {
 						"method": "POST",
@@ -702,20 +603,53 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"example@gmail.com\",\n  \"password\": \"password\",\n  \"role\": \"marketing_manager\",\n  \"name\": \"John Doe\",\n  \"facultyId\": \"ee39cab4-d10e-4646-9bfd-a4acb603b0e0\"\n}"
+							"raw": "{\n    \"email\": \"example@gmail.com\",\n    \"password\": \"password\",\n    \"role\": \"marketing_manager\",\n    \"name\": \"John Doe\",\n    \"facultyId\": \"ee39cab4-d10e-4646-9bfd-a4acb603b0e0\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/admin/create-user",
+							"raw": "{{baseUrl}}/api/admin/user",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"admin",
-								"create-user"
+								"user"
 							]
 						},
 						"description": "Create a new user (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"94ff81c1-25d6-49d7-b47e-34f18b2a0259\",\n    \"password\": \"admin\",\n    \"role\": \"admin\",\n    \"facultyId\": \"3f2c1a19-5318-4877-85df-1006b66cce8e\",\n    \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"user"
+							]
+						},
+						"description": "Update a user (Admin only)\n\n(password is optional, other fields are required)"
 					},
 					"response": []
 				},

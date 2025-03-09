@@ -38,6 +38,38 @@ export async function createUser(
   }
 }
 
+export async function updateUser(
+  userId: string,
+  password: string | undefined,
+  role: Role,
+  facultyId: string,
+  status: 'active' | 'inactive',
+) {
+  try {
+    // check if password is provided
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await db
+        .update(user)
+        .set({ passwordHash: hashedPassword, role, facultyId, status })
+        .where(eq(user.id, userId));
+    } else {
+      await db
+        .update(user)
+        .set({ role, facultyId, status })
+        .where(eq(user.id, userId));
+    }
+  } catch (error) {
+    if (error instanceof DatabaseError && error.code === '22P02') {
+      throw new ValidationError('Invalid user id');
+    }
+    if (error instanceof DatabaseError && error.code === '23503') {
+      throw new ValidationError('Faculty or user does not exist');
+    }
+    throw error;
+  }
+}
+
 export async function resetUserPassword(userId: string, newPassword: string) {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   try {

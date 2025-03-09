@@ -2,7 +2,7 @@ import { FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { db } from '../db';
-import { user } from '../db/schema';
+import { faculty, user } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '../utils/logger';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
@@ -22,7 +22,7 @@ export async function authenticateRequest(
       role: string;
     };
     logger.info(`Authenticating user: ${decoded.email}`);
-
+    // join user with faculty as a alias facultyName
     const userResult = await db
       .select({
         id: user.id,
@@ -30,8 +30,10 @@ export async function authenticateRequest(
         role: user.role,
         facultyId: user.facultyId,
         name: user.name,
+        facultyName: faculty.name,
       })
       .from(user)
+      .leftJoin(faculty, eq(user.facultyId, faculty.id))
       .where(eq(user.email, decoded.email))
       .limit(1);
 
