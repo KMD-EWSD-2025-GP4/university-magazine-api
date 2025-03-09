@@ -185,7 +185,11 @@ export async function loginUser(input: loginUserBodySchema) {
   if (!existingUser) {
     throw new UnauthorizedError('Invalid email or password');
   }
-
+  if (existingUser.status === 'inactive') {
+    throw new UnauthorizedError(
+      'Your account is inactive, please contact your administrator',
+    );
+  }
   // Verify password
   const isPasswordValid = await bcrypt.compare(
     password,

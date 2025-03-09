@@ -1,6 +1,12 @@
 import bcrypt from 'bcryptjs';
 import { db } from '../../db';
-import { academicYear, faculty, term, user } from '../../db/schema';
+import {
+  academicYear,
+  contribution,
+  faculty,
+  term,
+  user,
+} from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { Role } from '../../types/roles';
 import { logger } from '../../utils/logger';
@@ -138,6 +144,14 @@ export async function createFaculty(facultyName: string) {
 
 export async function deleteFaculty(facultyId: string) {
   try {
+    // prevent deleting faculty if it has users
+    const existingUsers = await db
+      .select()
+      .from(user)
+      .where(eq(user.facultyId, facultyId));
+    if (existingUsers.length > 0) {
+      throw new ValidationError('Faculty has existing users');
+    }
     await db.delete(faculty).where(eq(faculty.id, facultyId));
   } catch (error) {
     if (error instanceof DatabaseError && error.code === '22P02') {
@@ -160,6 +174,15 @@ export async function updateFaculty(
       .where(eq(faculty.id, facultyId));
     if (!existingFaculty || existingFaculty.length === 0) {
       throw new ValidationError('Faculty does not exist');
+    }
+
+    // prevent updating faculty status to inactive if it has users
+    const existingUsers = await db
+      .select()
+      .from(user)
+      .where(eq(user.facultyId, facultyId));
+    if (existingUsers.length > 0 && status === 'inactive') {
+      throw new ValidationError('Faculty has existing users');
     }
     await db
       .update(faculty)
@@ -202,6 +225,14 @@ export async function deleteAcademicYear(academicYearId: string) {
     if (existingAcademicYear.length === 0) {
       throw new ValidationError('Academic year does not exist');
     }
+    // prevent deleting academic year if it has contributions
+    const existingContributions = await db
+      .select()
+      .from(contribution)
+      .where(eq(contribution.academicYearId, academicYearId));
+    if (existingContributions.length > 0) {
+      throw new ValidationError('Academic year has existing contributions');
+    }
     await db.delete(academicYear).where(eq(academicYear.id, academicYearId));
   } catch (error) {
     if (error instanceof DatabaseError && error.code === '22P02') {
@@ -228,6 +259,15 @@ export async function updateAcademicYear(
       .limit(1);
     if (existingAcademicYear.length === 0) {
       throw new ValidationError('Academic year does not exist');
+    }
+
+    // prevent updating academic year status to inactive if it has contributions
+    const existingContributions = await db
+      .select()
+      .from(contribution)
+      .where(eq(contribution.academicYearId, academicYearId));
+    if (existingContributions.length > 0 && status === 'inactive') {
+      throw new ValidationError('Academic year has existing contributions');
     }
     const convertedStartDate = new Date(startDate);
     const convertedEndDate = new Date(endDate);

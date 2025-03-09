@@ -16,7 +16,7 @@ import {
   changeUserStatus,
   updateUser,
 } from './admin.services';
-import { handleError } from '../../utils/errors';
+import { handleError, ValidationError } from '../../utils/errors';
 import {
   changeUserRoleBodySchema,
   changeUserFacultyBodySchema,
@@ -57,6 +57,12 @@ export async function updateUserHandler(
   try {
     const { userId, password, role, facultyId, status } =
       req.body as updateUserBodySchema;
+    // admin cannot update their own status
+    if (userId === req.user.id && status === 'inactive') {
+      throw new ValidationError(
+        'Admin cannot update their own status to inactive',
+      );
+    }
     await updateUser(userId, password, role, facultyId, status);
     res.status(200).send({ message: 'User updated successfully' });
   } catch (error) {
