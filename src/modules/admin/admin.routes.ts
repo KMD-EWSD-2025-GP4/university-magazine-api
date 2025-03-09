@@ -13,6 +13,7 @@ import {
   createTermHandler,
   deleteTermHandler,
   updateTermHandler,
+  createUserHandler,
 } from './admin.controllers';
 import {
   changeUserRoleJSONSchema,
@@ -28,6 +29,7 @@ import {
   deleteTermJSONSchema,
   updateTermJSONSchema,
   changeUserFacultyJSONSchema,
+  createUserJSONSchema,
 } from './admin.schema';
 import { authenticateRequest } from '../../middleware/auth';
 import { checkRole } from '../../middleware/auth';
@@ -41,6 +43,16 @@ export async function adminRoutes(app: FastifyInstance) {
       preHandler: [checkRole(['admin'])],
     },
     resetUserPasswordHandler,
+  );
+
+  app.post(
+    '/create-user',
+    {
+      schema: createUserJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['admin'])],
+    },
+    createUserHandler,
   );
 
   app.post(

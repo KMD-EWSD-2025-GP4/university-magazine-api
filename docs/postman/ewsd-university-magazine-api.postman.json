@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8a6418a4-4d0b-4bd8-8cec-6834bddaadb7",
+		"_postman_id": "7f42b3da-07f1-42ce-a476-40b4d0014205",
 		"name": "EWSD University Magazine API",
 		"description": "API collection for EWSD University Magazine project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -683,6 +683,39 @@
 							]
 						},
 						"description": "Create a new faculty (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"example@gmail.com\",\n  \"password\": \"password\",\n  \"role\": \"marketing_manager\",\n  \"name\": \"John Doe\",\n  \"facultyId\": \"ee39cab4-d10e-4646-9bfd-a4acb603b0e0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/create-user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"create-user"
+							]
+						},
+						"description": "Create a new user (Admin only)"
 					},
 					"response": []
 				},
