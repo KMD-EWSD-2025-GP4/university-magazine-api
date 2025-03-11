@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   createComment,
   getContribution,
@@ -7,6 +9,7 @@ import {
   listMyContributions,
   listFacultySelectedContributions,
   updateContributionStatus,
+  downloadSelectedContributions,
 } from './contribution.services';
 
 import {
@@ -15,9 +18,11 @@ import {
   CreateContributionSchema,
   UpdateContributionSchema,
   UpdateContributionStatusSchema,
+  DownloadSelectedContributionsQuerySchema,
 } from './contribution.schema';
 
 import { handleError } from '../../utils/errors';
+import { logger } from '../../utils/logger';
 
 export async function createContributionHandler(
   req: FastifyRequest,
@@ -114,6 +119,47 @@ export async function updateContributionStatusHandler(
       data.status as 'selected' | 'rejected',
     );
     res.status(200).send(contribution);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+/**
+ * Handler for downloading all selected contributions as a zip file
+ * This endpoint is restricted to marketing manager role only
+ * Optional academicYearId query parameter can be provided to filter by a specific academic year
+ * If no academicYearId is provided, it determines the current academic year based on the current date
+ */
+export async function downloadSelectedContributionsHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const query = req.query as DownloadSelectedContributionsQuerySchema;
+    const { zipFilePath, filename } = await downloadSelectedContributions(
+      query.academicYearId,
+    );
+
+    // Set appropriate headers for file download
+    res.header('Content-Type', 'application/zip');
+    res.header('Content-Disposition', `attachment; filename="${filename}"`);
+
+    // Stream the zip file
+    const fileStream = fs.createReadStream(zipFilePath);
+
+    // Clean up temp files after response is sent
+    res.raw.on('finish', () => {
+      try {
+        const tempDir = path.dirname(zipFilePath);
+        fs.unlinkSync(zipFilePath);
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      } catch (cleanupError) {
+        logger.error(`Error cleaning up temp files: ${cleanupError}`);
+      }
+    });
+
+    // Send the file stream
+    await res.send(fileStream);
   } catch (error) {
     handleError(error, req, res);
   }
