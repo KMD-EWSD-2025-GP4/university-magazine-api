@@ -8,6 +8,7 @@ import {
   listMyContributionsHandler,
   listFacultySelectedContributionsHandler,
   updateContributionStatusHandler,
+  downloadSelectedContributionsHandler,
 } from './contribution.controllers';
 
 import {
@@ -16,6 +17,7 @@ import {
   updateContributionJSONSchema,
   createCommentSchemaJSONSchema,
   updateContributionStatusJSONSchema,
+  downloadSelectedContributionsJSONSchema,
 } from './contribution.schema';
 
 import { checkRole } from '../../middleware/auth';
@@ -89,5 +91,16 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
       preHandler: [checkRole(['marketing_coordinator'])],
     },
     updateContributionStatusHandler,
+  );
+
+  // New route for downloading all selected contributions
+  app.get(
+    '/download-selected',
+    {
+      schema: downloadSelectedContributionsJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_manager'])],
+    },
+    downloadSelectedContributionsHandler,
   );
 }

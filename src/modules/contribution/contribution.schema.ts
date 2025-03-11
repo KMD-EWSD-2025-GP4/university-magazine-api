@@ -83,3 +83,20 @@ export const updateContributionStatusJSONSchema = {
     'updateContributionStatusSchema',
   ),
 };
+
+// Schema for downloading selected contributions with optional academic year filter
+// If academicYearId is not provided, the current academic year is determined based on the current date
+const downloadSelectedContributionsQuerySchema = z.object({
+  academicYearId: z.string().uuid().optional(),
+});
+
+export type DownloadSelectedContributionsQuerySchema = z.infer<
+  typeof downloadSelectedContributionsQuerySchema
+>;
+
+export const downloadSelectedContributionsJSONSchema = {
+  querystring: zodToJsonSchema(
+    downloadSelectedContributionsQuerySchema,
+    'downloadSelectedContributionsQuerySchema',
+  ),
+};

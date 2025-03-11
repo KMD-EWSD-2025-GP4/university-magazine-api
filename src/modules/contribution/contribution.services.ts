@@ -6,6 +6,7 @@ import {
   contribution,
   academicYear,
   contributionAsset,
+  faculty,
 } from '../../db/schema';
 import { db } from '../../db';
 
@@ -25,6 +26,13 @@ import {
 import { logger } from '../../utils/logger';
 import { generatePresignedDownloadUrl } from '../../utils/s3';
 import { ValidationError, ForbiddenError } from '../../utils/errors';
+
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import axios from 'axios';
+import archiver from 'archiver';
+import { env } from '../../config/env';
 
 type contributionAssetType = {
   contributionId: string;
@@ -625,4 +633,230 @@ export async function updateContributionStatus(
   }
 
   return result[0];
+}
+
+/**
+ * Downloads selected contributions as a zip file
+ * This function retrieves all contributions with status='selected'
+ * If no academicYearId is provided, it determines the current academic year based on the current date
+ * @param academicYearId Optional academic year ID to filter contributions
+ */
+export async function downloadSelectedContributions(
+  academicYearId?: string,
+): Promise<{ zipFilePath: string; filename: string }> {
+  let selectedAcademicYearId = academicYearId;
+  let academicYearInfo = null;
+
+  // If no academicYearId provided, find the current academic year based on current date
+  if (!selectedAcademicYearId) {
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+    const currentAcademicYear = await db
+      .select()
+      .from(academicYear)
+      .where(
+        and(
+          sql`${academicYear.startDate} <= ${formattedDate}`,
+          sql`${academicYear.endDate} >= ${formattedDate}`,
+        ),
+      )
+      .limit(1);
+
+    if (currentAcademicYear.length === 0) {
+      throw new ValidationError(
+        'No academic year found for the current date. Please specify an academic year ID.',
+      );
+    }
+
+    selectedAcademicYearId = currentAcademicYear[0].id;
+    academicYearInfo = currentAcademicYear[0];
+  }
+
+  // Get all contributions with status='selected' from the selected academic year
+  const selectedContributions = await db
+    .select({
+      contribution: contribution,
+      student: user,
+      faculty: faculty,
+      academicYear: academicYear,
+    })
+    .from(contribution)
+    .leftJoin(user, eq(contribution.studentId, user.id))
+    .leftJoin(faculty, eq(contribution.facultyId, faculty.id))
+    .leftJoin(academicYear, eq(contribution.academicYearId, academicYear.id))
+    .where(
+      and(
+        eq(contribution.status, 'selected'),
+        eq(contribution.academicYearId, selectedAcademicYearId),
+      ),
+    );
+
+  if (selectedContributions.length === 0) {
+    // If we already have academic year info, use it for a better error message
+    if (academicYearInfo) {
+      const startYear = new Date(academicYearInfo.startDate).getFullYear();
+      const endYear = new Date(academicYearInfo.endDate).getFullYear();
+      throw new ValidationError(
+        `No selected contributions found for the academic year ${startYear}-${endYear}`,
+      );
+    } else {
+      throw new ValidationError(
+        'No selected contributions found for the specified academic year',
+      );
+    }
+  }
+
+  // 2. Get all assets for these contributions
+  const contributionIds = selectedContributions.map(
+    (item) => item.contribution.id,
+  );
+  const assets = await db
+    .select()
+    .from(contributionAsset)
+    .where(sql`${contributionAsset.contributionId} IN ${contributionIds}`);
+
+  // 3. Create temp directory for downloads
+  const tempDir = path.join(
+    os.tmpdir(),
+    'contribution-downloads-' + Date.now(),
+  );
+  fs.mkdirSync(tempDir, { recursive: true });
+
+  // 4. Download all assets from S3
+  const downloadPromises = assets.map(async (asset) => {
+    try {
+      const downloadUrl = await generatePresignedDownloadUrl(
+        env.AWS_BUCKET_NAME,
+        asset.filePath,
+      );
+      const assetFilename = path.basename(asset.filePath);
+      const contributionFolder = path.join(tempDir, asset.contributionId);
+
+      // Create folder for each contribution
+      fs.mkdirSync(contributionFolder, { recursive: true });
+
+      // Download file
+      const response = await axios({
+        method: 'GET',
+        url: downloadUrl,
+        responseType: 'stream',
+      });
+
+      const outputPath = path.join(contributionFolder, assetFilename);
+      const writer = fs.createWriteStream(outputPath);
+
+      response.data.pipe(writer);
+
+      return new Promise<void>((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+    } catch (error) {
+      logger.error(`Error downloading asset ${asset.id}: ${error}`);
+      throw error;
+    }
+  });
+
+  await Promise.all(downloadPromises);
+
+  // 5. Create info text file for each contribution
+  for (const item of selectedContributions) {
+    const { contribution: contrib, student, faculty, academicYear } = item;
+    const contributionFolder = path.join(tempDir, contrib.id);
+
+    // Format the submission date
+    const submissionDate = contrib.submissionDate
+      ? new Date(contrib.submissionDate).toLocaleString()
+      : 'N/A';
+    const lastUpdated = contrib.lastUpdated
+      ? new Date(contrib.lastUpdated).toLocaleString()
+      : 'N/A';
+
+    // Create info text content with null checks
+    const infoContent = `CONTRIBUTION INFORMATION
+==============================
+Title: ${contrib.title || 'N/A'}
+Description: ${contrib.description || 'N/A'}
+Status: ${contrib.status || 'N/A'}
+Submission Date: ${submissionDate}
+Last Updated: ${lastUpdated}
+View Count: ${contrib.viewCount || 0}
+
+STUDENT INFORMATION
+==============================
+Name: ${student?.name || 'N/A'}
+Email: ${student?.email || 'N/A'}
+Faculty: ${faculty?.name || 'Unknown'}
+
+ACADEMIC YEAR INFORMATION
+==============================
+${academicYear ? `Start Date: ${new Date(academicYear.startDate).toLocaleString()}\nEnd Date: ${new Date(academicYear.endDate).toLocaleString()}` : 'N/A'}
+`;
+
+    // Write info file
+    fs.writeFileSync(
+      path.join(contributionFolder, 'contribution_info.txt'),
+      infoContent,
+    );
+  }
+
+  // 6. Create zip file
+  let zipFilename = 'selected-contributions';
+
+  // Format the filename with more details if we have academic year info
+  // First check selectedContributions, then fall back to academicYearInfo if needed
+  let yearInfoToUse = null;
+
+  if (
+    selectedContributions.length > 0 &&
+    selectedContributions[0].academicYear
+  ) {
+    yearInfoToUse = selectedContributions[0].academicYear;
+  } else if (academicYearInfo) {
+    yearInfoToUse = academicYearInfo;
+  }
+
+  if (yearInfoToUse && yearInfoToUse.startDate && yearInfoToUse.endDate) {
+    // Format: selected-contributions-2025-01-to-2025-08-academic-year.zip
+    const startDate = new Date(yearInfoToUse.startDate);
+    const endDate = new Date(yearInfoToUse.endDate);
+
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // +1 because months are 0-indexed
+
+    const endYear = endDate.getFullYear();
+    const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+
+    zipFilename = `selected-contributions-${startYear}-${startMonth}-to-${endYear}-${endMonth}-academic-year`;
+  }
+
+  // Add .zip extension
+  zipFilename += '.zip';
+  const zipFilePath = path.join(tempDir, zipFilename);
+  const output = fs.createWriteStream(zipFilePath);
+  const archive = archiver('zip', { zlib: { level: 9 } });
+
+  archive.pipe(output);
+
+  // Add each contribution folder to the zip with its ID as the folder name
+  for (const item of selectedContributions) {
+    const contributionFolder = path.join(tempDir, item.contribution.id);
+    archive.directory(contributionFolder, item.contribution.id);
+  }
+
+  // Wait for the zip to finish
+  return new Promise<{ zipFilePath: string; filename: string }>(
+    (resolve, reject) => {
+      output.on('close', () => {
+        resolve({ zipFilePath, filename: zipFilename });
+      });
+
+      archive.on('error', (err) => {
+        reject(err);
+      });
+
+      archive.finalize();
+    },
+  );
 }
