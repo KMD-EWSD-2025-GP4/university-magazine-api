@@ -313,12 +313,7 @@
 					"name": "Get All Faculties",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/api/academic/faculty",
 							"host": [
@@ -330,7 +325,7 @@
 								"faculty"
 							]
 						},
-						"description": "Get all faculties"
+						"description": "Get all faculties (Public route - no authentication required)"
 					},
 					"response": []
 				},
