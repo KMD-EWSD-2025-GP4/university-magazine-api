@@ -17,13 +17,7 @@ import {
 import { authenticateRequest } from '../../middleware/auth';
 
 export async function academicRoutes(app: FastifyInstance) {
-  app.get(
-    '/faculty',
-    {
-      onRequest: [authenticateRequest],
-    },
-    getAllFacultiesHandler,
-  );
+  app.get('/faculty', getAllFacultiesHandler);
 
   app.get(
     '/faculty/by-id/:id',
