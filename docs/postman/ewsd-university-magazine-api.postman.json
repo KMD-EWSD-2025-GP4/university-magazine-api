@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "cac1d0fd-8d96-4ff7-8671-24ce862ddc4f",
+		"_postman_id": "6538a6c8-98d1-4b6c-bce6-e8cc8381fd87",
 		"name": "EWSD University Magazine API",
 		"description": "API collection for EWSD University Magazine project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "22585791"
+		"_exporter_id": "8103362"
 	},
 	"item": [
 		{
@@ -67,7 +67,52 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"student1@gmail.com\",\n  \"password\": \"student1\"\n}"
+							"raw": "{\n  \"email\": \"yan.waipann@protonmail.ch\",\n  \"password\": \"student1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"adminAuthToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/login",
@@ -336,7 +381,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
+								"value": "Bearer {{adminAuthToken}}"
 							}
 						],
 						"url": {
@@ -970,7 +1015,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "d3fde254-2e46-4bfa-aaba-0653e143b5dc"
+									"value": "a191edda-214d-4f91-a796-a2ba456ed7f7"
 								}
 							]
 						}
@@ -1001,6 +1046,11 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "academicYearId",
+									"value": "49a14b62-7076-42c1-a4c2-b08f264723fd",
+									"disabled": true
 								}
 							]
 						}
@@ -1042,6 +1092,48 @@
 								{
 									"key": "limit",
 									"value": "10"
+								},
+								{
+									"key": "academicYearId",
+									"value": "49a14b62-7076-42c1-a4c2-b08f264723fd",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Contributions MC",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/faculty/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"faculty",
+								"all"
+							],
+							"query": [
+								{
+									"key": "academicYearId",
+									"value": "49a14b62-7076-42c1-a4c2-b08f264723fd",
+									"disabled": true
 								}
 							]
 						}
@@ -1125,7 +1217,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "d3fde254-2e46-4bfa-aaba-0653e143b5dc"
+									"value": "a191edda-214d-4f91-a796-a2ba456ed7f7"
 								}
 							]
 						}
@@ -1169,6 +1261,16 @@
 				{
 					"name": "Update Contribution Status",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
@@ -1194,7 +1296,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "259b29bb-606b-4a98-9834-22c1fa1364d1"
+									"value": "a191edda-214d-4f91-a796-a2ba456ed7f7"
 								}
 							]
 						}
@@ -1393,6 +1495,10 @@
 		},
 		{
 			"key": "guestAuthToken",
+			"value": ""
+		},
+		{
+			"key": "adminAuthToken",
 			"value": ""
 		}
 	]
