@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"guest1@gmail.com\",\n  \"password\": \"password123\",\n  \"name\": \"John Doe\",\n  \"facultyId\": \"3220ffe0-44f9-4a7e-9c19-4bc7bdd07f2d\"\n}"
+							"raw": "{\n  \"email\": \"marketing_manager@gmail.com\",\n  \"password\": \"marketing_manager\",\n  \"name\": \"Eric Mathew\",\n  \"facultyId\": \"3220ffe0-44f9-4a7e-9c19-4bc7bdd07f2d\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/register",
@@ -67,7 +67,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"yan.waipann@protonmail.ch\",\n  \"password\": \"student1\"\n}"
+							"raw": "{\n  \"email\": \"Mmthwe2@kmd.edu.mm\",\n  \"password\": \"student\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/login",
@@ -157,7 +157,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"yanwaipann@gmail.com\",\n  \"password\": \"student1\"\n}"
+							"raw": "{\n  \"email\": \"marketing_manager@gmail.com\",\n  \"password\": \"marketing_manager\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/login",
@@ -957,7 +957,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Email Test\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\" // path is obtained from GET pre-signed url available in uploads collection\n    },\n    \"images\": [\n        {\n            \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\"\n        }\n    ]\n}",
+							"raw": "{\n    \"title\": \"Email Test\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        // \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\" // path is obtained from GET pre-signed url available in uploads collection\n        \"path\": \"\"\n    },\n    \"images\": [\n        {\n            \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1025,6 +1025,16 @@
 				{
 					"name": "Get My Contributions",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -1127,6 +1137,42 @@
 								"api",
 								"contribution",
 								"faculty",
+								"all"
+							],
+							"query": [
+								{
+									"key": "academicYearId",
+									"value": "49a14b62-7076-42c1-a4c2-b08f264723fd",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Contributions MM",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
 								"all"
 							],
 							"query": [
