@@ -134,6 +134,7 @@ export async function listAllContributionsHandler(
     const contributions = await listAllContributions(
       req.user.facultyId!,
       params,
+      req.user.role!,
     );
     res.send(contributions);
   } catch (error) {

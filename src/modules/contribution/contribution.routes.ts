@@ -36,6 +36,16 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
   );
 
   app.get(
+    '/all',
+    {
+      schema: listContributionsJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_manager'])],
+    },
+    listAllContributionsHandler,
+  );
+
+  app.get(
     '/:id',
     {
       onRequest: [authenticateRequest],

@@ -588,6 +588,7 @@ export async function listFacultySelectedContributions(
 export async function listAllContributions(
   facultyId: string,
   params: PaginationParams,
+  role: string,
 ): Promise<
   PaginatedResponse<
     typeof contribution.$inferSelect & {
@@ -599,10 +600,20 @@ export async function listAllContributions(
 > {
   const { academicYearId } = params;
 
-  const whereConditions = [eq(contribution.facultyId, facultyId)];
+  const whereConditions = [];
 
   if (academicYearId) {
     whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
+
+  // Add status filter for marketing_manager role
+  if (role === 'marketing_manager') {
+    whereConditions.push(eq(contribution.status, 'selected'));
+  }
+
+  // Add status filter for marketing_coordinator role
+  if (role === 'marketing_coordinator') {
+    whereConditions.push(eq(contribution.facultyId, facultyId));
   }
 
   const items = await db
@@ -644,6 +655,12 @@ export async function listAllContributions(
         .where(eq(academicYear.id, item.academicYearId))
         .limit(1);
 
+      const [{ name: facultyName }] = await db
+        .select({ name: faculty.name })
+        .from(faculty)
+        .where(eq(faculty.id, item.facultyId))
+        .limit(1);
+
       const startYear = new Date(year.startDate).getFullYear();
       const endYear = new Date(year.endDate).getFullYear();
       const academicYearString = `${startYear}-${+endYear + 1}`;
@@ -653,6 +670,7 @@ export async function listAllContributions(
         assets: assetsWithUrls,
         studentName: student.name,
         academicYear: academicYearString,
+        facultyName,
       };
     }),
   );

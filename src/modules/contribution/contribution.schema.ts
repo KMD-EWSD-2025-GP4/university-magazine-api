@@ -5,12 +5,12 @@ const createContributionSchema = z.object({
   title: z.string(),
   description: z.string(),
   article: z.object({
-    path: z.string(),
+    path: z.string().min(5),
   }),
   images: z
     .array(
       z.object({
-        path: z.string(),
+        path: z.string().min(5),
       }),
     )
     .optional(),
