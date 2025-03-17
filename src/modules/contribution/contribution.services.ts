@@ -479,12 +479,14 @@ export async function listFacultySelectedContributions(
   facultyId: string,
   params: PaginationParams,
 ): Promise<
-  PaginatedResponse<{
-    studentId: string;
-    studentName: string;
-    email: string;
-    contribution: typeof contribution.$inferSelect & { academicYear: string };
-  }>
+  PaginatedResponse<
+    typeof contribution.$inferSelect & {
+      studentId: string;
+      studentName: string;
+      email: string;
+      academicYear: string;
+    }
+  >
 > {
   const { academicYearId } = params;
   const { limit = 20, cursor, order } = getPaginationParams(params);
@@ -580,7 +582,12 @@ export async function listFacultySelectedContributions(
   if (order === 'asc' && hasMore) itemsWithDetails.pop();
 
   return {
-    items: itemsWithDetails,
+    items: itemsWithDetails.map((item) => ({
+      ...item.contribution,
+      studentId: item.studentId,
+      studentName: item.studentName,
+      email: item.email,
+    })),
     nextCursor: nextCursor ? encodeToken(nextCursor) : nextCursor,
   };
 }
