@@ -140,6 +140,7 @@ export async function createContribution(
     marketingCoordinator: {
       name: marketingCoordinator.name,
     },
+    createdDate: now.toLocaleDateString('en-GB'),
   };
 
   // Send email notification to faculty's marketing coordinator
@@ -581,6 +582,86 @@ export async function listFacultySelectedContributions(
   return {
     items: itemsWithDetails,
     nextCursor: nextCursor ? encodeToken(nextCursor) : nextCursor,
+  };
+}
+
+export async function listAllContributions(
+  facultyId: string,
+  params: PaginationParams,
+): Promise<
+  PaginatedResponse<
+    typeof contribution.$inferSelect & {
+      studentName: string;
+      academicYear: string;
+      assets: (typeof contributionAsset.$inferSelect)[];
+    }
+  >
+> {
+  const { academicYearId } = params;
+
+  const whereConditions = [eq(contribution.facultyId, facultyId)];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
+
+  const items = await db
+    .select()
+    .from(contribution)
+    .where(and(...whereConditions))
+    .orderBy(sql`${contribution.createdAt}`);
+
+  // Fetch assets, student name and academic year for each contribution
+  const itemsWithDetails = await Promise.all(
+    items.map(async (item) => {
+      const assets = await db
+        .select()
+        .from(contributionAsset)
+        .where(eq(contributionAsset.contributionId, item.id));
+
+      const assetsWithUrls = await Promise.all(
+        assets.map(async (asset) => ({
+          ...asset,
+          url: await generatePresignedDownloadUrl(
+            'ewsd-bucket',
+            asset.filePath,
+          ),
+        })),
+      );
+
+      const [student] = await db
+        .select({ name: user.name })
+        .from(user)
+        .where(eq(user.id, item.studentId))
+        .limit(1);
+
+      const [year] = await db
+        .select({
+          startDate: academicYear.startDate,
+          endDate: academicYear.endDate,
+        })
+        .from(academicYear)
+        .where(eq(academicYear.id, item.academicYearId))
+        .limit(1);
+
+      const startYear = new Date(year.startDate).getFullYear();
+      const endYear = new Date(year.endDate).getFullYear();
+      const academicYearString = `${startYear}-${+endYear + 1}`;
+
+      return {
+        ...item,
+        assets: assetsWithUrls,
+        studentName: student.name,
+        academicYear: academicYearString,
+      };
+    }),
+  );
+
+  if (itemsWithDetails.length === 0) return { items: [], nextCursor: null };
+
+  return {
+    items: itemsWithDetails,
+    nextCursor: null,
   };
 }
 
