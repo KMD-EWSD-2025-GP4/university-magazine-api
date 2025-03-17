@@ -1,12 +1,18 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import axios from 'axios';
+import * as path from 'path';
+import archiver from 'archiver';
+import { env } from '../../config/env';
 import { eq, and, sql, desc, aliasedTable } from 'drizzle-orm';
 
 import {
   user,
   comment,
+  faculty,
   contribution,
   academicYear,
   contributionAsset,
-  faculty,
 } from '../../db/schema';
 import { db } from '../../db';
 
@@ -26,13 +32,6 @@ import {
 import { logger } from '../../utils/logger';
 import { generatePresignedDownloadUrl } from '../../utils/s3';
 import { ValidationError, ForbiddenError } from '../../utils/errors';
-
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import axios from 'axios';
-import archiver from 'archiver';
-import { env } from '../../config/env';
 
 type contributionAssetType = {
   contributionId: string;
@@ -357,24 +356,29 @@ export async function listMyContributions(
   studentId: string,
   params: PaginationParams,
 ): Promise<PaginatedResponse<typeof contribution.$inferSelect>> {
+  const { academicYearId } = params;
   const { limit = 20, cursor, order } = getPaginationParams(params);
 
   if (limit > 20) {
     throw new ValidationError('Limit must be less than or equal to 20');
   }
 
+  const whereConditions = [
+    eq(contribution.studentId, studentId),
+    createPaginationQuery(sql`${contribution.createdAt}`, {
+      cursor,
+      order,
+    }),
+  ];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
+
   const items = await db
     .select()
     .from(contribution)
-    .where(
-      and(
-        eq(contribution.studentId, studentId),
-        createPaginationQuery(sql`${contribution.createdAt}`, {
-          cursor,
-          order,
-        }),
-      ),
-    )
+    .where(and(...whereConditions))
     .orderBy(sql`${contribution.createdAt} ${sql.raw(order)}`)
     .limit(limit + 1);
 
@@ -431,6 +435,7 @@ export async function listFacultySelectedContributions(
     contribution: typeof contribution.$inferSelect;
   }>
 > {
+  const { academicYearId } = params;
   const { limit = 20, cursor, order } = getPaginationParams(params);
 
   if (limit > 20) {
@@ -438,6 +443,19 @@ export async function listFacultySelectedContributions(
   }
 
   const student = aliasedTable(user, 'student');
+
+  const whereConditions = [
+    eq(contribution.facultyId, facultyId),
+    eq(contribution.status, 'selected'),
+    createPaginationQuery(sql`${contribution.createdAt}`, {
+      cursor,
+      order,
+    }),
+  ];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
 
   const items = await db
     .select({
@@ -448,16 +466,7 @@ export async function listFacultySelectedContributions(
     })
     .from(contribution)
     .innerJoin(student, eq(student.id, contribution.studentId))
-    .where(
-      and(
-        eq(contribution.facultyId, facultyId),
-        eq(contribution.status, 'selected'),
-        createPaginationQuery(sql`${contribution.createdAt}`, {
-          cursor,
-          order,
-        }),
-      ),
-    )
+    .where(and(...whereConditions))
     .orderBy(sql`${contribution.createdAt} ${sql.raw(order)}`)
     .limit(limit + 1);
 
@@ -852,7 +861,7 @@ ${academicYear ? `Start Date: ${new Date(academicYear.startDate).toLocaleString(
         resolve({ zipFilePath, filename: zipFilename });
       });
 
-      archive.on('error', (err) => {
+      archive.on('error', (err: Error) => {
         reject(err);
       });
 

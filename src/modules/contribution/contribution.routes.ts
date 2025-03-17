@@ -78,7 +78,7 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
     {
       schema: listContributionsJSONSchema,
       onRequest: [authenticateRequest],
-      preHandler: [checkRole(['student', 'guest'])],
+      preHandler: [checkRole(['student', 'guest', 'marketing_coordinator'])],
     },
     listFacultySelectedContributionsHandler,
   );
