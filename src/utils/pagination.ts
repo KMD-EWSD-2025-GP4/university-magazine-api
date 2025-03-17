@@ -6,6 +6,7 @@ export interface PaginationParams {
   cursor?: string | null;
   limit?: number;
   order?: 'asc' | 'desc';
+  academicYearId?: string;
 }
 
 export interface PaginatedResponse<T> {

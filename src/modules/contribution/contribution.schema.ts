@@ -48,6 +48,7 @@ const paginationSchema = z.object({
   cursor: z.string().or(z.null()).or(z.undefined()).optional(),
   limit: z.number().min(1).max(100).optional(),
   order: z.enum(['asc', 'desc']).optional(),
+  academicYearId: z.string().uuid().optional(),
 });
 
 export type PaginationSchema = z.infer<typeof paginationSchema>;

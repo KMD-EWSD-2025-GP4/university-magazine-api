@@ -1,12 +1,18 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import axios from 'axios';
+import * as path from 'path';
+import archiver from 'archiver';
+import { env } from '../../config/env';
 import { eq, and, sql, desc, aliasedTable } from 'drizzle-orm';
 
 import {
   user,
   comment,
+  faculty,
   contribution,
   academicYear,
   contributionAsset,
-  faculty,
 } from '../../db/schema';
 import { db } from '../../db';
 
@@ -26,13 +32,6 @@ import {
 import { logger } from '../../utils/logger';
 import { generatePresignedDownloadUrl } from '../../utils/s3';
 import { ValidationError, ForbiddenError } from '../../utils/errors';
-
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
-import axios from 'axios';
-import archiver from 'archiver';
-import { env } from '../../config/env';
 
 type contributionAssetType = {
   contributionId: string;
@@ -141,6 +140,7 @@ export async function createContribution(
     marketingCoordinator: {
       name: marketingCoordinator.name,
     },
+    createdDate: now.toLocaleDateString('en-GB'),
   };
 
   // Send email notification to faculty's marketing coordinator
@@ -181,19 +181,15 @@ export async function getContribution(
     | (typeof contribution.$inferSelect & {
         assets: (typeof contributionAsset.$inferSelect)[];
         comments: commentType[] | [];
+        studentName: string;
+        academicYear: string;
       })
     | [];
 }> {
   const contributionData = await db
     .select()
     .from(contribution)
-    .where(
-      eq(contribution.id, contributionId),
-      // and(
-      //   eq(contribution.id, contributionId),
-      //   eq(contribution.studentId, studentId),
-      // ),
-    )
+    .where(eq(contribution.id, contributionId))
     .limit(1);
 
   if (contributionData.length === 0) {
@@ -262,12 +258,35 @@ export async function getContribution(
       .where(eq(comment.contributionId, contributionId));
   }
 
+  // Get student name
+  const [student] = await db
+    .select({ name: user.name })
+    .from(user)
+    .where(eq(user.id, contributionData[0].studentId))
+    .limit(1);
+
+  // Get academic year
+  const [year] = await db
+    .select({
+      startDate: academicYear.startDate,
+      endDate: academicYear.endDate,
+    })
+    .from(academicYear)
+    .where(eq(academicYear.id, contributionData[0].academicYearId))
+    .limit(1);
+
+  // To construct for example: 2025-2026
+  // The assumption here is the a year starts at 1st of January and ends at 31st of December
+  const academicYearString = `${new Date(year.startDate).getFullYear()}-${+new Date(year.endDate).getFullYear() + 1}`;
+
   return {
     success: true,
     data: {
       ...contributionData[0],
       assets: assetsWithUrls,
       comments,
+      studentName: student.name,
+      academicYear: academicYearString,
     },
   };
 }
@@ -356,30 +375,42 @@ export async function updateContribution(
 export async function listMyContributions(
   studentId: string,
   params: PaginationParams,
-): Promise<PaginatedResponse<typeof contribution.$inferSelect>> {
+): Promise<
+  PaginatedResponse<
+    typeof contribution.$inferSelect & {
+      studentName: string;
+      academicYear: string;
+    }
+  >
+> {
+  const { academicYearId } = params;
   const { limit = 20, cursor, order } = getPaginationParams(params);
 
   if (limit > 20) {
     throw new ValidationError('Limit must be less than or equal to 20');
   }
 
+  const whereConditions = [
+    eq(contribution.studentId, studentId),
+    createPaginationQuery(sql`${contribution.createdAt}`, {
+      cursor,
+      order,
+    }),
+  ];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
+
   const items = await db
     .select()
     .from(contribution)
-    .where(
-      and(
-        eq(contribution.studentId, studentId),
-        createPaginationQuery(sql`${contribution.createdAt}`, {
-          cursor,
-          order,
-        }),
-      ),
-    )
+    .where(and(...whereConditions))
     .orderBy(sql`${contribution.createdAt} ${sql.raw(order)}`)
     .limit(limit + 1);
 
-  // Fetch assets for each contribution
-  const itemsWithAssets = await Promise.all(
+  // Fetch assets, student name and academic year for each contribution
+  const itemsWithDetails = await Promise.all(
     items.map(async (item) => {
       const assets = await db
         .select()
@@ -396,26 +427,50 @@ export async function listMyContributions(
         })),
       );
 
-      return { ...item, assets: assetsWithUrls };
+      const [student] = await db
+        .select({ name: user.name })
+        .from(user)
+        .where(eq(user.id, item.studentId))
+        .limit(1);
+
+      const [year] = await db
+        .select({
+          startDate: academicYear.startDate,
+          endDate: academicYear.endDate,
+        })
+        .from(academicYear)
+        .where(eq(academicYear.id, item.academicYearId))
+        .limit(1);
+
+      const startYear = new Date(year.startDate).getFullYear();
+      const endYear = new Date(year.endDate).getFullYear();
+      const academicYearString = `${startYear}-${+endYear + 1}`;
+
+      return {
+        ...item,
+        assets: assetsWithUrls,
+        studentName: student.name,
+        academicYear: academicYearString,
+      };
     }),
   );
 
-  if (itemsWithAssets.length === 0) return { items: [], nextCursor: null };
+  if (itemsWithDetails.length === 0) return { items: [], nextCursor: null };
 
-  const hasMore = itemsWithAssets.length > limit;
+  const hasMore = itemsWithDetails.length > limit;
 
   // if desc pop first before cursor extraction
-  if (order === 'desc' && hasMore) itemsWithAssets.pop();
+  if (order === 'desc' && hasMore) itemsWithDetails.pop();
 
   const nextCursor = hasMore
-    ? itemsWithAssets[itemsWithAssets.length - 1].createdAt!.toISOString()
+    ? itemsWithDetails[itemsWithDetails.length - 1].createdAt!.toISOString()
     : null;
 
   // if asc pop after cursor extraction
   if (order === 'asc' && hasMore) items.pop();
 
   return {
-    items: itemsWithAssets,
+    items: itemsWithDetails,
     nextCursor: nextCursor ? encodeToken(nextCursor) : nextCursor,
   };
 }
@@ -428,9 +483,10 @@ export async function listFacultySelectedContributions(
     studentId: string;
     studentName: string;
     email: string;
-    contribution: typeof contribution.$inferSelect;
+    contribution: typeof contribution.$inferSelect & { academicYear: string };
   }>
 > {
+  const { academicYearId } = params;
   const { limit = 20, cursor, order } = getPaginationParams(params);
 
   if (limit > 20) {
@@ -438,6 +494,19 @@ export async function listFacultySelectedContributions(
   }
 
   const student = aliasedTable(user, 'student');
+
+  const whereConditions = [
+    eq(contribution.facultyId, facultyId),
+    eq(contribution.status, 'selected'),
+    createPaginationQuery(sql`${contribution.createdAt}`, {
+      cursor,
+      order,
+    }),
+  ];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
 
   const items = await db
     .select({
@@ -448,28 +517,18 @@ export async function listFacultySelectedContributions(
     })
     .from(contribution)
     .innerJoin(student, eq(student.id, contribution.studentId))
-    .where(
-      and(
-        eq(contribution.facultyId, facultyId),
-        eq(contribution.status, 'selected'),
-        createPaginationQuery(sql`${contribution.createdAt}`, {
-          cursor,
-          order,
-        }),
-      ),
-    )
+    .where(and(...whereConditions))
     .orderBy(sql`${contribution.createdAt} ${sql.raw(order)}`)
     .limit(limit + 1);
 
-  // Fetch assets for each contribution
-  const itemsWithAssets = await Promise.all(
+  // Fetch assets and academic year for each contribution
+  const itemsWithDetails = await Promise.all(
     items.map(async (item) => {
       const assets = await db
         .select()
         .from(contributionAsset)
         .where(eq(contributionAsset.contributionId, item.contribution.id));
 
-      // Generate presigned URLs for each asset
       const assetsWithUrls = await Promise.all(
         assets.map(async (asset) => ({
           ...asset,
@@ -480,35 +539,129 @@ export async function listFacultySelectedContributions(
         })),
       );
 
+      const [year] = await db
+        .select({
+          startDate: academicYear.startDate,
+          endDate: academicYear.endDate,
+        })
+        .from(academicYear)
+        .where(eq(academicYear.id, item.contribution.academicYearId))
+        .limit(1);
+
+      const startYear = new Date(year.startDate).getFullYear();
+      const endYear = new Date(year.endDate).getFullYear();
+      const academicYearString = `${startYear}-${+endYear + 1}`;
+
       return {
         ...item,
         contribution: {
           ...item.contribution,
           assets: assetsWithUrls,
+          academicYear: academicYearString,
         },
       };
     }),
   );
 
-  if (itemsWithAssets.length === 0) return { items: [], nextCursor: null };
+  if (itemsWithDetails.length === 0) return { items: [], nextCursor: null };
 
-  const hasMore = itemsWithAssets.length > limit;
+  const hasMore = itemsWithDetails.length > limit;
 
   // if desc pop first before cursor extraction
-  if (order === 'desc' && hasMore) itemsWithAssets.pop();
+  if (order === 'desc' && hasMore) itemsWithDetails.pop();
 
   const nextCursor = hasMore
-    ? itemsWithAssets[
-        itemsWithAssets.length - 1
+    ? itemsWithDetails[
+        itemsWithDetails.length - 1
       ].contribution.createdAt!.toISOString()
     : null;
 
   // if asc pop after cursor extraction
-  if (order === 'asc' && hasMore) itemsWithAssets.pop();
+  if (order === 'asc' && hasMore) itemsWithDetails.pop();
 
   return {
-    items: itemsWithAssets,
+    items: itemsWithDetails,
     nextCursor: nextCursor ? encodeToken(nextCursor) : nextCursor,
+  };
+}
+
+export async function listAllContributions(
+  facultyId: string,
+  params: PaginationParams,
+): Promise<
+  PaginatedResponse<
+    typeof contribution.$inferSelect & {
+      studentName: string;
+      academicYear: string;
+      assets: (typeof contributionAsset.$inferSelect)[];
+    }
+  >
+> {
+  const { academicYearId } = params;
+
+  const whereConditions = [eq(contribution.facultyId, facultyId)];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+  }
+
+  const items = await db
+    .select()
+    .from(contribution)
+    .where(and(...whereConditions))
+    .orderBy(sql`${contribution.createdAt}`);
+
+  // Fetch assets, student name and academic year for each contribution
+  const itemsWithDetails = await Promise.all(
+    items.map(async (item) => {
+      const assets = await db
+        .select()
+        .from(contributionAsset)
+        .where(eq(contributionAsset.contributionId, item.id));
+
+      const assetsWithUrls = await Promise.all(
+        assets.map(async (asset) => ({
+          ...asset,
+          url: await generatePresignedDownloadUrl(
+            'ewsd-bucket',
+            asset.filePath,
+          ),
+        })),
+      );
+
+      const [student] = await db
+        .select({ name: user.name })
+        .from(user)
+        .where(eq(user.id, item.studentId))
+        .limit(1);
+
+      const [year] = await db
+        .select({
+          startDate: academicYear.startDate,
+          endDate: academicYear.endDate,
+        })
+        .from(academicYear)
+        .where(eq(academicYear.id, item.academicYearId))
+        .limit(1);
+
+      const startYear = new Date(year.startDate).getFullYear();
+      const endYear = new Date(year.endDate).getFullYear();
+      const academicYearString = `${startYear}-${+endYear + 1}`;
+
+      return {
+        ...item,
+        assets: assetsWithUrls,
+        studentName: student.name,
+        academicYear: academicYearString,
+      };
+    }),
+  );
+
+  if (itemsWithDetails.length === 0) return { items: [], nextCursor: null };
+
+  return {
+    items: itemsWithDetails,
+    nextCursor: null,
   };
 }
 
@@ -852,7 +1005,7 @@ ${academicYear ? `Start Date: ${new Date(academicYear.startDate).toLocaleString(
         resolve({ zipFilePath, filename: zipFilename });
       });
 
-      archive.on('error', (err) => {
+      archive.on('error', (err: Error) => {
         reject(err);
       });
 

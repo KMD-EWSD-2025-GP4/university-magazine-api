@@ -6,9 +6,10 @@ import {
   updateContributionHandler,
   createContributionHandler,
   listMyContributionsHandler,
-  listFacultySelectedContributionsHandler,
+  listAllContributionsHandler,
   updateContributionStatusHandler,
   downloadSelectedContributionsHandler,
+  listFacultySelectedContributionsHandler,
 } from './contribution.controllers';
 
 import {
@@ -78,9 +79,19 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
     {
       schema: listContributionsJSONSchema,
       onRequest: [authenticateRequest],
-      preHandler: [checkRole(['student', 'guest'])],
+      preHandler: [checkRole(['student', 'guest', 'marketing_coordinator'])],
     },
     listFacultySelectedContributionsHandler,
+  );
+
+  app.get(
+    '/faculty/all',
+    {
+      schema: listContributionsJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    listAllContributionsHandler,
   );
 
   app.put(

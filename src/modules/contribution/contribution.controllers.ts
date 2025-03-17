@@ -7,9 +7,10 @@ import {
   createContribution,
   updateContribution,
   listMyContributions,
-  listFacultySelectedContributions,
+  listAllContributions,
   updateContributionStatus,
   downloadSelectedContributions,
+  listFacultySelectedContributions,
 } from './contribution.services';
 
 import {
@@ -119,6 +120,22 @@ export async function updateContributionStatusHandler(
       data.status as 'selected' | 'rejected',
     );
     res.status(200).send(contribution);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function listAllContributionsHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const params = req.query as PaginationSchema;
+    const contributions = await listAllContributions(
+      req.user.facultyId!,
+      params,
+    );
+    res.send(contributions);
   } catch (error) {
     handleError(error, req, res);
   }
