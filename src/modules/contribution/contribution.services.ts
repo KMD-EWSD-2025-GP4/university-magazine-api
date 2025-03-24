@@ -153,7 +153,7 @@ export async function createContribution(
       subject: '🎉 New Contribution Submission',
       html: newContributionEmailTemplate(emailData),
     });
-    logger.info(`Result: ${result}`);
+    logger.info(`Result: ${JSON.stringify(result)}`);
 
     if (result.success === false) {
       logger.error(`Error sending email: ${result.error}`);
@@ -752,7 +752,7 @@ export async function createComment(
           subject: '🎉 New Comment on your Contribution',
           html: newCommentEmailTemplate(emailData),
         });
-        logger.info(`Result: ${result}`);
+        logger.info(`Result: ${JSON.stringify(result)}`);
         if (result.success === false) {
           logger.error(`Error sending email: ${result.error}`);
         }
@@ -818,7 +818,7 @@ export async function updateContributionStatus(
       subject: '🎉 Contribution Status Updated',
       html: updateContributionStatusEmailTemplate(emailData),
     });
-    logger.info(`Email result: ${emailResult}`);
+    logger.info(`Email result: ${JSON.stringify(emailResult)}`);
     if (emailResult.success === false) {
       logger.error(`Error sending email: ${emailResult.error}`);
       throw new Error('Error sending email');
