@@ -751,7 +751,7 @@ export async function createComment(
           subject: '🎉 New Comment on your Contribution',
           html: newCommentEmailTemplate(emailData),
         });
-
+        logger.info(`Result: ${result}`);
         if (result.success === false) {
           logger.error(`Error sending email: ${result.error}`);
         }
