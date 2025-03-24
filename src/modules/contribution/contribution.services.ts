@@ -54,122 +54,130 @@ export async function createContribution(
     assets: (typeof contributionAsset.$inferSelect)[];
   }
 > {
-  const now = new Date();
+  try {
+    const now = new Date();
 
-  const [marketingCoordinator] = await db
-    .select({ name: user.name, email: user.email })
-    .from(user)
-    .where(
-      and(
-        eq(user.facultyId, student.facultyId!),
-        eq(user.role, 'marketing_coordinator'),
-      ),
-    )
-    .limit(1);
+    const [marketingCoordinator] = await db
+      .select({ name: user.name, email: user.email })
+      .from(user)
+      .where(
+        and(
+          eq(user.facultyId, student.facultyId!),
+          eq(user.role, 'marketing_coordinator'),
+        ),
+      )
+      .limit(1);
 
-  if (!marketingCoordinator) {
-    throw new ValidationError(
-      'There is no marketing coordinator for this faculty',
-    );
-  }
+    if (!marketingCoordinator) {
+      throw new ValidationError(
+        'There is no marketing coordinator for this faculty',
+      );
+    }
 
-  // Find current academic year based on submission date
-  // Another approach is to allow students pick their desired academic year
-  const academicYearData = await db
-    .select()
-    .from(academicYear)
-    .where(
-      and(
-        sql`${now} >= ${academicYear.startDate}`,
-        sql`${now} <= ${academicYear.endDate}`,
-      ),
-    )
-    .orderBy(desc(academicYear.startDate))
-    .limit(1);
+    // Find current academic year based on submission date
+    // Another approach is to allow students pick their desired academic year
+    const academicYearData = await db
+      .select()
+      .from(academicYear)
+      .where(
+        and(
+          sql`${now} >= ${academicYear.startDate}`,
+          sql`${now} <= ${academicYear.endDate}`,
+        ),
+      )
+      .orderBy(desc(academicYear.startDate))
+      .limit(1);
 
-  if (academicYearData.length === 0) {
-    throw new ValidationError('No active academic year found for submissions');
-  }
+    if (academicYearData.length === 0) {
+      throw new ValidationError(
+        'No active academic year found for submissions',
+      );
+    }
 
-  if (now > academicYearData[0].newClosureDate) {
-    throw new ValidationError(
-      `New submissions are no longer accepted after ${academicYearData[0].newClosureDate.toISOString()}`,
-    );
-  }
+    if (now > academicYearData[0].newClosureDate) {
+      throw new ValidationError(
+        `New submissions are no longer accepted after ${academicYearData[0].newClosureDate.toISOString()}`,
+      );
+    }
 
-  // Create contribution
-  const [newContribution] = await db
-    .insert(contribution)
-    .values({
-      title: data.title,
-      description: data.description,
-      studentId: student.id!,
-      facultyId: student.facultyId!,
-      academicYearId: academicYearData[0].id,
-      submissionDate: now,
-    })
-    .returning();
+    // Create contribution
+    const [newContribution] = await db
+      .insert(contribution)
+      .values({
+        title: data.title,
+        description: data.description,
+        studentId: student.id!,
+        facultyId: student.facultyId!,
+        academicYearId: academicYearData[0].id,
+        submissionDate: now,
+      })
+      .returning();
 
-  // Create article asset
-  await db.insert(contributionAsset).values({
-    contributionId: newContribution.id,
-    type: 'article',
-    filePath: data.article.path,
-  });
-
-  // Create image assets
-  const imageAssets: contributionAssetType[] = (data.images ?? []).map(
-    (image) => ({
+    // Create article asset
+    await db.insert(contributionAsset).values({
       contributionId: newContribution.id,
-      type: 'image',
-      filePath: image.path,
-    }),
-  );
+      type: 'article',
+      filePath: data.article.path,
+    });
 
-  if (imageAssets.length > 0) {
-    await db.insert(contributionAsset).values(imageAssets);
+    // Create image assets
+    const imageAssets: contributionAssetType[] = (data.images ?? []).map(
+      (image) => ({
+        contributionId: newContribution.id,
+        type: 'image',
+        filePath: image.path,
+      }),
+    );
+
+    if (imageAssets.length > 0) {
+      await db.insert(contributionAsset).values(imageAssets);
+    }
+
+    const emailData = {
+      title: data.title,
+      newContributionId: newContribution.id,
+      student: {
+        name: student.name!,
+        email: student.email!,
+      },
+      marketingCoordinator: {
+        name: marketingCoordinator.name,
+      },
+      createdDate: now.toLocaleDateString('en-GB'),
+    };
+
+    // Send email notification to faculty's marketing coordinator
+    logger.info(`Sending email to ${marketingCoordinator.email}`);
+    const result = await sendEmail({
+      to: marketingCoordinator.email,
+      subject: '🎉 New Contribution Submission',
+      html: newContributionEmailTemplate(emailData),
+    });
+
+    if (result.success === false) {
+      logger.error(`Error sending email: ${result.error}`);
+    }
+
+    const assets = await db
+      .select()
+      .from(contributionAsset)
+      .where(eq(contributionAsset.contributionId, newContribution.id));
+
+    const assetsWithUrls = await Promise.all(
+      assets.map(async (asset) => ({
+        ...asset,
+        url: await generatePresignedDownloadUrl('ewsd-bucket', asset.filePath),
+      })),
+    );
+
+    return {
+      ...newContribution,
+      assets: assetsWithUrls,
+    };
+  } catch (error) {
+    logger.error(`Error creating contribution: ${error}`);
+    throw error;
   }
-
-  const emailData = {
-    title: data.title,
-    newContributionId: newContribution.id,
-    student: {
-      name: student.name!,
-      email: student.email!,
-    },
-    marketingCoordinator: {
-      name: marketingCoordinator.name,
-    },
-    createdDate: now.toLocaleDateString('en-GB'),
-  };
-
-  // Send email notification to faculty's marketing coordinator
-  const result = await sendEmail({
-    to: marketingCoordinator.email,
-    subject: '🎉 New Contribution Submission',
-    html: newContributionEmailTemplate(emailData),
-  });
-
-  if (result.success === false) {
-    logger.error(`Error sending email: ${result.error}`);
-  }
-
-  const assets = await db
-    .select()
-    .from(contributionAsset)
-    .where(eq(contributionAsset.contributionId, newContribution.id));
-
-  const assetsWithUrls = await Promise.all(
-    assets.map(async (asset) => ({
-      ...asset,
-      url: await generatePresignedDownloadUrl('ewsd-bucket', asset.filePath),
-    })),
-  );
-
-  return {
-    ...newContribution,
-    assets: assetsWithUrls,
-  };
 }
 
 export async function getContribution(
@@ -695,63 +703,69 @@ export async function createComment(
   currentUser: Partial<typeof user.$inferSelect>,
   data: { comment: string },
 ): Promise<{ success: boolean; comment: string }> {
-  // Check if contribution exists
-  const contributionData = await db
-    .select()
-    .from(contribution)
-    .where(eq(contribution.id, contributionId))
-    .limit(1);
-
-  if (contributionData.length === 0)
-    throw new ValidationError('Contribution not found');
-
-  // add comment
-  const [newComment] = await db
-    .insert(comment)
-    .values({
-      contributionId,
-      content: data.comment,
-      userId: currentUser.id!,
-    })
-    .returning();
-
-  if (newComment) {
-    // send email to student
-    const [student] = await db
+  try {
+    // Check if contribution exists
+    const contributionData = await db
       .select()
-      .from(user)
-      .where(eq(user.id, contributionData[0].studentId))
+      .from(contribution)
+      .where(eq(contribution.id, contributionId))
       .limit(1);
 
-    if (student) {
-      const emailData = {
-        title: contributionData[0].title,
-        contributionId: contributionData[0].id,
-        student: {
-          name: student.name!,
-          email: student.email!,
-        },
-        marketingCoordinator: {
-          name: currentUser.name!,
-        },
-      };
-      // Send email notification to faculty's marketing coordinator
-      const result = await sendEmail({
-        to: student.email,
-        subject: '🎉 New Comment on your Contribution',
-        html: newCommentEmailTemplate(emailData),
-      });
+    if (contributionData.length === 0)
+      throw new ValidationError('Contribution not found');
 
-      if (result.success === false) {
-        logger.error(`Error sending email: ${result.error}`);
+    // add comment
+    const [newComment] = await db
+      .insert(comment)
+      .values({
+        contributionId,
+        content: data.comment,
+        userId: currentUser.id!,
+      })
+      .returning();
+
+    if (newComment) {
+      // send email to student
+      const [student] = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, contributionData[0].studentId))
+        .limit(1);
+
+      if (student) {
+        const emailData = {
+          title: contributionData[0].title,
+          contributionId: contributionData[0].id,
+          student: {
+            name: student.name!,
+            email: student.email!,
+          },
+          marketingCoordinator: {
+            name: currentUser.name!,
+          },
+        };
+        logger.info(`Sending email to ${student.email}`);
+        // Send email notification to faculty's marketing coordinator
+        const result = await sendEmail({
+          to: student.email,
+          subject: '🎉 New Comment on your Contribution',
+          html: newCommentEmailTemplate(emailData),
+        });
+
+        if (result.success === false) {
+          logger.error(`Error sending email: ${result.error}`);
+        }
       }
     }
-  }
 
-  return {
-    success: true,
-    comment: newComment.content,
-  };
+    return {
+      success: true,
+      comment: newComment.content,
+    };
+  } catch (error) {
+    logger.error(`Error creating comment: ${error}`);
+    throw error;
+  }
 }
 
 export async function updateContributionStatus(
