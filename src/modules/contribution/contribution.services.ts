@@ -153,6 +153,7 @@ export async function createContribution(
       subject: '🎉 New Contribution Submission',
       html: newContributionEmailTemplate(emailData),
     });
+    logger.info(`Result: ${result}`);
 
     if (result.success === false) {
       logger.error(`Error sending email: ${result.error}`);
@@ -817,7 +818,7 @@ export async function updateContributionStatus(
       subject: '🎉 Contribution Status Updated',
       html: updateContributionStatusEmailTemplate(emailData),
     });
-
+    logger.info(`Email result: ${emailResult}`);
     if (emailResult.success === false) {
       logger.error(`Error sending email: ${emailResult.error}`);
       throw new Error('Error sending email');
