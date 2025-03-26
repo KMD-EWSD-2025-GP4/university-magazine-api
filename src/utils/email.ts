@@ -24,6 +24,10 @@ export const sendEmail = async ({ to, subject, html }: EmailTemplate) => {
       html,
     });
     logger.info(`Email sent: ${JSON.stringify(data)}`);
+    if (data.error) {
+      logger.error(`Error sending email: ${data.error}`);
+      return { success: false, error: data.error };
+    }
     return { success: true, data };
   } catch (error) {
     logger.error(`Error sending email: ${error}`);

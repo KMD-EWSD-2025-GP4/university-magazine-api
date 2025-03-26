@@ -1,7 +1,7 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 import { db } from '../../db';
-import { faculty, user } from '../../db/schema';
+import { faculty, loginAuditLog, user } from '../../db/schema';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '../../config/env';
@@ -178,7 +178,7 @@ export async function registerUser(input: registerUserBodySchema) {
 }
 
 export async function loginUser(input: loginUserBodySchema) {
-  const { email, password } = input;
+  const { email, password, browser } = input;
 
   // Find user by email
   const existingUser = await findUserByEmail(email);
@@ -209,14 +209,31 @@ export async function loginUser(input: loginUserBodySchema) {
     Buffer.from(env.JWT_SECRET),
     { expiresIn: env.JWT_EXPIRES_IN } as SignOptions,
   );
-  // Update last login and total logins
+  // Update total logins
   await db
     .update(user)
     .set({
       lastLogin: new Date(),
       totalLogins: existingUser.totalLogins + 1,
+      browser,
     })
     .where(eq(user.id, existingUser.id));
+  //get last login time
+  const lastLoginResult = await db
+    .select({
+      loginTime: loginAuditLog.loginTime,
+    })
+    .from(loginAuditLog)
+    .where(eq(loginAuditLog.userId, existingUser.id))
+    .orderBy(desc(loginAuditLog.loginTime))
+    .limit(1);
+  const firstTimeLogin = lastLoginResult.length === 0;
+  const lastLogin = lastLoginResult[0]?.loginTime;
+  // insert login audit log
+  await db.insert(loginAuditLog).values({
+    userId: existingUser.id,
+    loginTime: new Date(),
+  });
   return {
     user: {
       id: existingUser.id,
@@ -224,6 +241,8 @@ export async function loginUser(input: loginUserBodySchema) {
       name: existingUser.name,
       role: existingUser.role,
       status: existingUser.status,
+      firstTimeLogin,
+      lastLogin,
       facultyId: existingUser.facultyId,
       facultyName: existingUser.facultyName,
     },

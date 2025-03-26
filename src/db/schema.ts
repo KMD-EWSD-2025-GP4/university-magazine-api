@@ -22,7 +22,7 @@ export const userBrowsersEnum = pgEnum('user_browsers', [
   'chrome',
   'firefox',
   'safari',
-  'edge',
+  'brave',
   'opera',
   'other',
 ]);
@@ -58,6 +58,18 @@ export const user = pgTable(
     index().on(users.email),
     index().on(users.facultyId),
   ],
+);
+
+export const loginAuditLog = pgTable(
+  'login_audit_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .references(() => user.id)
+      .notNull(),
+    loginTime: timestamp('login_time', { withTimezone: true }).notNull(),
+  },
+  (loginAuditLogs) => [index().on(loginAuditLogs.userId)],
 );
 
 export const faculty = pgTable(

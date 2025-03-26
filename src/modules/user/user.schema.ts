@@ -29,6 +29,9 @@ export const loginUserBodySchema = z.object({
   password: z.string({
     required_error: 'Password is required',
   }),
+  browser: z
+    .enum(['chrome', 'firefox', 'safari', 'brave', 'opera', 'other'])
+    .default('other'),
 });
 
 export type loginUserBodySchema = z.infer<typeof loginUserBodySchema>;

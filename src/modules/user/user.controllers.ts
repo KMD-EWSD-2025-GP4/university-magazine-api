@@ -13,7 +13,7 @@ import {
   registerUserBodySchema,
 } from './user.schema';
 import { logger } from '../../utils/logger';
-import { AppError, handleError } from '../../utils/errors';
+import { handleError } from '../../utils/errors';
 
 export async function getCurrentUserHandler(
   request: FastifyRequest,
