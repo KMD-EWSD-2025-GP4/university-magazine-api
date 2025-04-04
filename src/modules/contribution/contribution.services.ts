@@ -1208,15 +1208,17 @@ export async function marketingManagerContributorsReport(): Promise<{
     }
   >();
 
-  // Keep track of contributors across all academic years
-  const allContributorIds = new Set<string>();
-
   // Process query results and organize by academic year and faculty
   for (const row of uniqueContributorsByFaculty) {
     // Format academic year as "YYYY-YYYY"
     const startYear = new Date(row.academicYearStart).getFullYear();
     const endYear = new Date(row.academicYearEnd).getFullYear();
-    const academicYearString = `${startYear}-${endYear + 1}`;
+    // if endYear is equal to startYear, add 1 to endYear
+    // to avoid having the same year twice
+    const academicYearString =
+      startYear === endYear
+        ? `${startYear}-${endYear + 1}`
+        : `${startYear}-${endYear}`;
 
     // Get or create academic year entry
     if (!academicYearsMap.has(row.academicYearId)) {
