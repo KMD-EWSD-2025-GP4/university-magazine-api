@@ -1114,7 +1114,10 @@ export async function marketingManagerContributionsReport(): Promise<{
     // Format academic year as "YYYY-YYYY"
     const startYear = new Date(row.academicYearStart).getFullYear();
     const endYear = new Date(row.academicYearEnd).getFullYear();
-    const academicYearString = `${startYear}-${endYear + 1}`;
+    const academicYearString =
+      startYear === endYear
+        ? `${startYear}-${endYear + 1}`
+        : `${startYear}-${endYear}`;
 
     // Get or create academic year entry
     if (!academicYearsMap.has(row.academicYearId)) {
