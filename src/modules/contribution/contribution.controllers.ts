@@ -11,6 +11,8 @@ import {
   updateContributionStatus,
   downloadSelectedContributions,
   listFacultySelectedContributions,
+  marketingManagerContributionsReport,
+  marketingManagerContributorsReport,
 } from './contribution.services';
 
 import {
@@ -178,6 +180,38 @@ export async function downloadSelectedContributionsHandler(
 
     // Send the file stream
     await res.send(fileStream);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+/**
+ * Handler for generating a report of contributions by faculty for each academic year
+ * This endpoint is restricted to marketing manager role only
+ */
+export async function marketingManagerContributionsReportHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const report = await marketingManagerContributionsReport();
+    res.send(report);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+/**
+ * Handler for generating a report of unique contributors by faculty for each academic year
+ * This endpoint is restricted to marketing manager role only
+ */
+export async function marketingManagerContributorsReportHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const report = await marketingManagerContributorsReport();
+    res.send(report);
   } catch (error) {
     handleError(error, req, res);
   }

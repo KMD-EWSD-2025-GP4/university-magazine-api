@@ -262,7 +262,7 @@ export async function getMostActiveUsers() {
     })
     .from(user)
     .orderBy(desc(user.totalLogins))
-    .limit(10);
+    .limit(5);
 }
 
 export async function getBrowserUsageStats() {

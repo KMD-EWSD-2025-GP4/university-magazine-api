@@ -10,6 +10,8 @@ import {
   updateContributionStatusHandler,
   downloadSelectedContributionsHandler,
   listFacultySelectedContributionsHandler,
+  marketingManagerContributionsReportHandler,
+  marketingManagerContributorsReportHandler,
 } from './contribution.controllers';
 
 import {
@@ -123,5 +125,25 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
       preHandler: [checkRole(['marketing_manager'])],
     },
     downloadSelectedContributionsHandler,
+  );
+
+  // New route for contribution statistics report
+  app.get(
+    '/mm/contribution_report',
+    {
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_manager'])],
+    },
+    marketingManagerContributionsReportHandler,
+  );
+
+  // New route for unique contributors report
+  app.get(
+    '/mm/contributor_report',
+    {
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_manager'])],
+    },
+    marketingManagerContributorsReportHandler,
   );
 }
