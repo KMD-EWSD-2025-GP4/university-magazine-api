@@ -1205,6 +1205,46 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "MM Contribution Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/mm/contribution_report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"mm",
+								"contribution_report"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MM Contributor Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/mm/contributor_report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"mm",
+								"contributor_report"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"auth": {
