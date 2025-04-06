@@ -10,12 +10,17 @@ import {
   listAllContributionsHandler,
   updateContributionStatusHandler,
   downloadSelectedContributionsHandler,
+  marketingCoordinatorGuestReportHandler,
+  marketingCoordinatorYearlyStatsHandler,
   listFacultySelectedContributionsHandler,
-  marketingManagerContributionsReportHandler,
   marketingManagerContributorsReportHandler,
+  marketingManagerContributionsReportHandler,
+  marketingCoordinatorUncommentedContributionsHandler,
+  marketingCoordinatorContributorsAndContributionsHandler,
 } from './contribution.controllers';
 
 import {
+  mcStatisticsJSONSchema,
   listContributionsJSONSchema,
   createContributionJSONSchema,
   updateContributionJSONSchema,
@@ -169,5 +174,43 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
       preHandler: [checkRole(['marketing_manager'])],
     },
     marketingManagerContributorsReportHandler,
+  );
+
+  app.get(
+    '/mc/guest_report',
+    {
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    marketingCoordinatorGuestReportHandler,
+  );
+
+  app.get(
+    '/mc/contributors_and_contributions',
+    {
+      schema: mcStatisticsJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    marketingCoordinatorContributorsAndContributionsHandler,
+  );
+
+  app.get(
+    '/mc/yearly_stats',
+    {
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    marketingCoordinatorYearlyStatsHandler,
+  );
+
+  app.get(
+    '/mc/uncommented_contributions',
+    {
+      schema: mcStatisticsJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['marketing_coordinator'])],
+    },
+    marketingCoordinatorUncommentedContributionsHandler,
   );
 }
