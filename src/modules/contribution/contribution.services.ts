@@ -296,6 +296,9 @@ export async function getContribution(
   // The assumption here is the a year starts at 1st of January and ends at 31st of December
   const academicYearString = `${new Date(year.startDate).getFullYear()}-${+new Date(year.endDate).getFullYear() + 1}`;
 
+  // Increment view count
+  // await incrementContributionViewCount(contributionId).catch(logger.error);
+
   return {
     success: true,
     data: {
@@ -1335,4 +1338,16 @@ export async function marketingManagerContributorsReport(): Promise<{
     academicYears,
     totalUniqueContributors,
   };
+}
+
+export async function incrementContributionViewCount(
+  contributionId: string,
+): Promise<void> {
+  await db
+    .update(contribution)
+    .set({
+      viewCount: sql`${contribution.viewCount} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(eq(contribution.id, contributionId));
 }

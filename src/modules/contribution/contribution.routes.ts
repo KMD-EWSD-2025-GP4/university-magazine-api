@@ -5,6 +5,7 @@ import {
   getContributionHandler,
   updateContributionHandler,
   createContributionHandler,
+  incrementViewCountHandler,
   listMyContributionsHandler,
   listAllContributionsHandler,
   updateContributionStatusHandler,
@@ -81,6 +82,22 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
       preHandler: [checkRole(['marketing_coordinator', 'student'])],
     },
     createCommentHandler,
+  );
+
+  app.post(
+    '/:id/view',
+    {
+      onRequest: [authenticateRequest],
+      preHandler: [
+        checkRole([
+          'student',
+          'guest',
+          'marketing_manager',
+          'marketing_coordinator',
+        ]),
+      ],
+    },
+    incrementViewCountHandler,
   );
 
   app.get(
