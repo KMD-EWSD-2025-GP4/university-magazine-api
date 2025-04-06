@@ -101,3 +101,17 @@ export const downloadSelectedContributionsJSONSchema = {
     'downloadSelectedContributionsQuerySchema',
   ),
 };
+
+// Schema for getting marketing coordinator statistics with optional academic year filter
+const mcStatisticsQuerySchema = z.object({
+  academicYearId: z.string().uuid().optional(),
+});
+
+export type MCStatisticsQuerySchema = z.infer<typeof mcStatisticsQuerySchema>;
+
+export const mcStatisticsJSONSchema = {
+  querystring: zodToJsonSchema(
+    mcStatisticsQuerySchema,
+    'mcStatisticsQuerySchema',
+  ),
+};

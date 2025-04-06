@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "cac1d0fd-8d96-4ff7-8671-24ce862ddc4f",
+		"_postman_id": "53b21d99-f9b6-4421-8659-7b2df4f12256",
 		"name": "EWSD University Magazine API",
 		"description": "API collection for EWSD University Magazine project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "22585791"
+		"_exporter_id": "8103362"
 	},
 	"item": [
 		{
@@ -40,7 +40,52 @@
 					"response": []
 				},
 				{
-					"name": "Login User",
+					"name": "Login Guest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"guestAuthToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"guest@gmail.com\",\n  \"password\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
 					"event": [
 						{
 							"listen": "test",
@@ -85,6 +130,96 @@
 					"response": []
 				},
 				{
+					"name": "Login Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"studentAuthToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"yan.waipann@protonmail.ch\",\n  \"password\": \"admin\",\n  \"browser\": \"firefox\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
+					},
+					"response": []
+				},
+				{
+					"name": "Login Marketing Coordinator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Set authToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"marketingCoordinatorAuthToken\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"yanwaipann@gmail.com\",\n  \"password\": \"admin\",\n  \"browser\": \"firefox\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						},
+						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
+					},
+					"response": []
+				},
+				{
 					"name": "Login Marketing Manager",
 					"event": [
 						{
@@ -112,52 +247,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"yanwaipann@gmail.com\",\n  \"password\": \"student1\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/user/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"user",
-								"login"
-							]
-						},
-						"description": "### Login User\n\nThis endpoint is used to authenticate a user and obtain an authentication token.\n\n#### Request Body\n\n- The request should include a JSON object with the following keys:\n    \n    - `email`: (string) The email of the user.\n        \n    - `password`: (string) The password of the user.\n        \n\n#### Response\n\nStatus: 200\n\n- Content-Type: application/json\n    \n- The response will contain a JSON object with the following keys:\n    \n    - `user`: An object containing user information with keys:\n        \n        - `id`\n            \n        - `email`\n            \n        - `name`\n            \n        - `role`\n            \n        - `facultyId`\n            \n    - `token`: A string representing the authentication token.\n        \n\n#### Setting User Token as Collection Variable\n\nTo set the `userToken` as a collection variable, navigate to the collection in the Postman app, click on the \"Variables\" tab, and add a new variable with the key \"userToken\" and the value of the token provided."
-					},
-					"response": []
-				},
-				{
-					"name": "Login Guest",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"",
-									"pm.test(\"Set authToken\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.collectionVariables.set(\"guestAuthToken\", jsonData.token);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"guest1@gmail.com\",\n  \"password\": \"password123\"\n}"
+							"raw": "{\n  \"email\": \"marketing_manager@gmail.com\",\n  \"password\": \"admin\",\n  \"browser\": \"firefox\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/user/login",
@@ -913,11 +1003,21 @@
 				{
 					"name": "Submit New Contribution",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Email Test\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\" // path is obtained from GET pre-signed url available in uploads collection\n    },\n    \"images\": [\n        {\n            \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\"\n        }\n    ]\n}",
+							"raw": "{\n    \"title\": \"Space Ships\",\n    \"description\": \"Space ships are cool and all but there is one big big...\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/24a33c03-0fa0-4491-92d1-ff31be2ed6f8.docx\" // path is obtained from GET pre-signed url available in uploads collection\n    },\n    \"images\": [\n        {\n            \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/fda5a5bd-f16d-47b1-ad20-f2c88f155ed6.jpeg\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -945,7 +1045,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{marketingManagerAuthToken}}",
+									"value": "{{studentAuthToken}}",
 									"type": "string"
 								}
 							]
@@ -954,7 +1054,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"comment\": \"Hello test... x3 Email Check\"\n}",
+							"raw": "{\n    \"comment\": \"Thank you for your feedback. I'll research a bit more and then update again.\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -975,7 +1075,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "d3fde254-2e46-4bfa-aaba-0653e143b5dc"
+									"value": "716c9644-a40f-49dd-aa7a-23d8cf17d47f"
 								}
 							]
 						}
@@ -985,6 +1085,16 @@
 				{
 					"name": "Get My Contributions",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -1054,6 +1164,43 @@
 					"response": []
 				},
 				{
+					"name": "Get All Faculty Contributions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/faculty/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"faculty",
+								"all"
+							],
+							"query": [
+								{
+									"key": "cursor",
+									"value": "MjAyNS0wMy0wMlQwODo0MjozNS42ODlaQDE3NDA5MDU2NTY2ODM=",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Download Selected Contributions",
 					"request": {
 						"auth": {
@@ -1092,31 +1239,19 @@
 				},
 				{
 					"name": "Get Contribution by ID",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{marketingManagerAuthToken}}",
+									"value": "{{marketingCoordinatorAuthToken}}",
 									"type": "string"
 								}
 							]
 						},
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"First Contrib\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"/arts-123\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/api/contribution/:id",
 							"host": [
@@ -1130,7 +1265,43 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "d3fde254-2e46-4bfa-aaba-0653e143b5dc"
+									"value": "716c9644-a40f-49dd-aa7a-23d8cf17d47f"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Increment Contribution View Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/:id/view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								":id",
+								"view"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "716c9644-a40f-49dd-aa7a-23d8cf17d47f"
 								}
 							]
 						}
@@ -1140,11 +1311,21 @@
 				{
 					"name": "Update Contribution by ID",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"First Contribbb\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/235cbd37-1265-429f-9c17-bb6a2ec0097f.jpeg\" // path is obtained from GET pre-signed url available in \n    }\n}",
+							"raw": "{\n    \"title\": \"Space Ship\",\n    \"description\": \"Space ships are indeed cool. The article highlights the parts that are not so well known.\",\n    \"article\": {\n        \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/24a33c03-0fa0-4491-92d1-ff31be2ed6f8.docx\" // path is obtained from GET pre-signed url available in uploads collection\n    },\n    \"images\": [\n        {\n            \"path\": \"uploads/ff21a883-d4f8-4ac5-959b-f5c4c7b4a336/fda5a5bd-f16d-47b1-ad20-f2c88f155ed6.jpeg\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1164,7 +1345,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "5a7f19e7-76bb-427d-8327-3e0a94b7b4c4"
+									"value": "716c9644-a40f-49dd-aa7a-23d8cf17d47f"
 								}
 							]
 						}
@@ -1174,6 +1355,16 @@
 				{
 					"name": "Update Contribution Status",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
@@ -1199,7 +1390,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "259b29bb-606b-4a98-9834-22c1fa1364d1"
+									"value": "716c9644-a40f-49dd-aa7a-23d8cf17d47f"
 								}
 							]
 						}
@@ -1209,6 +1400,16 @@
 				{
 					"name": "MM Contribution Report",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -1229,6 +1430,16 @@
 				{
 					"name": "MM Contributor Report",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingManagerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -1241,6 +1452,132 @@
 								"contribution",
 								"mm",
 								"contributor_report"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MC Guest Report",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/mc/guest_report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"mc",
+								"guest_report"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MC Contributors and Contributions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/mc/contributors_and_contributions?academicYearId=49a14b62-7076-42c1-a4c2-b08f264723fd",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"mc",
+								"contributors_and_contributions"
+							],
+							"query": [
+								{
+									"key": "academicYearId",
+									"value": "49a14b62-7076-42c1-a4c2-b08f264723fd"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MC Contributors and Contributions by Academic Years",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/mc/yearly_stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"mc",
+								"yearly_stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MC Uncommented Contributions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marketingCoordinatorAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/mc/uncommented_contributions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"mc",
+								"uncommented_contributions"
 							]
 						}
 					},
@@ -1302,23 +1639,21 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"First Contribbb\",\n    \"description\": \"Post description...\",\n    \"article\": {\n        \"path\": \"/arts-919\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{baseUrl}}/api/upload/presigned-url?fileName=hello.jpeg",
+							"raw": "{{baseUrl}}/api/upload/presigned-url?fileName=spaceships.jpeg",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1330,7 +1665,7 @@
 							"query": [
 								{
 									"key": "fileName",
-									"value": "hello.jpeg"
+									"value": "spaceships.jpeg"
 								}
 							]
 						}
@@ -1348,7 +1683,7 @@
 						"body": {
 							"mode": "file",
 							"file": {
-								"src": "/Users/zer0exploit/Pictures/Wallpapers/eve_liu_1.jpeg"
+								"src": "/Users/zer0exploit/Pictures/Wallpapers/background.jpeg"
 							}
 						},
 						"url": {
@@ -1438,6 +1773,14 @@
 		},
 		{
 			"key": "guestAuthToken",
+			"value": ""
+		},
+		{
+			"key": "studentAuthToken",
+			"value": ""
+		},
+		{
+			"key": "marketingCoordinatorAuthToken",
 			"value": ""
 		}
 	]

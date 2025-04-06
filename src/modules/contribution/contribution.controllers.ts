@@ -12,13 +12,24 @@ import {
   downloadSelectedContributions,
   incrementContributionViewCount,
   listFacultySelectedContributions,
-  marketingManagerContributionsReport,
-  marketingManagerContributorsReport,
 } from './contribution.services';
+
+import {
+  marketingManagerContributorsReport,
+  marketingManagerContributionsReport,
+} from './contribution.mm.reports.service';
+
+import {
+  getYearlyStats,
+  getGuestListByFaculty,
+  getUncommentedContributions,
+  getContributorsAndContributions,
+} from './contribution.mc.reports.service';
 
 import {
   PaginationSchema,
   CreateCommentSchema,
+  MCStatisticsQuerySchema,
   CreateContributionSchema,
   UpdateContributionSchema,
   UpdateContributionStatusSchema,
@@ -226,6 +237,62 @@ export async function marketingManagerContributorsReportHandler(
   try {
     const report = await marketingManagerContributorsReport();
     res.send(report);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function marketingCoordinatorGuestReportHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const guests = await getGuestListByFaculty(req.user.facultyId!);
+    res.send(guests);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function marketingCoordinatorContributorsAndContributionsHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const { academicYearId } = req.query as MCStatisticsQuerySchema;
+    const stats = await getContributorsAndContributions(
+      req.user.facultyId!,
+      academicYearId,
+    );
+    res.send(stats);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function marketingCoordinatorYearlyStatsHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const stats = await getYearlyStats(req.user.facultyId!);
+    res.send(stats);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function marketingCoordinatorUncommentedContributionsHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const { academicYearId } = req.query as MCStatisticsQuerySchema;
+    const contributions = await getUncommentedContributions(
+      req.user.facultyId!,
+      academicYearId,
+    );
+    res.send(contributions);
   } catch (error) {
     handleError(error, req, res);
   }
