@@ -51,7 +51,14 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
     '/:id',
     {
       onRequest: [authenticateRequest],
-      preHandler: [checkRole(['student', 'guest', 'marketing_coordinator'])],
+      preHandler: [
+        checkRole([
+          'student',
+          'guest',
+          'marketing_manager',
+          'marketing_coordinator',
+        ]),
+      ],
     },
     getContributionHandler,
   );
@@ -71,7 +78,7 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
     {
       schema: createCommentSchemaJSONSchema,
       onRequest: [authenticateRequest],
-      preHandler: [checkRole(['marketing_coordinator'])],
+      preHandler: [checkRole(['marketing_coordinator', 'student'])],
     },
     createCommentHandler,
   );

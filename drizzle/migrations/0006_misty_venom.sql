@@ -1,0 +1,1 @@
+ALTER TABLE "contributions" ADD COLUMN "feedback_given" boolean DEFAULT false NOT NULL;
