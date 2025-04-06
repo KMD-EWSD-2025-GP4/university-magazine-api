@@ -14,7 +14,6 @@ export interface EmailTemplate {
   html: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const sendEmail = async ({ to, subject, html }: EmailTemplate) => {
   try {
     const data = await resend.emails.send({
@@ -74,25 +73,31 @@ export const newContributionEmailTemplate = (data: {
 export const newCommentEmailTemplate = (data: {
   title: string;
   contributionId: string;
-  student: {
+  recipient: {
     name: string;
     email: string;
   };
-  marketingCoordinator: {
+  sender: {
     name: string;
+    role: 'student' | 'marketing_coordinator';
   };
 }): string => {
+  const isFromStudent = data.sender.role === 'student';
   return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
-        <h1 style="color: #000B41; text-align: center; margin-bottom: 30px; font-size: 28px;">Feedback on Your Article Submission</h1>
+        <h1 style="color: #000B41; text-align: center; margin-bottom: 30px; font-size: 28px;">New Comment on Article Submission</h1>
 
         <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
           <p style="color: #4A5568; line-height: 1.6; margin-bottom: 20px;">
-            Dear ${data.student.name},
+            Dear ${data.recipient.name},
           </p>
 
           <p style="color: #4A5568; line-height: 1.6; margin-bottom: 30px;">
-            Your submitted article titled "${data.title}" has received feedback from your Faculty's Marketing Coordinator.
+            ${
+              isFromStudent
+                ? `A new comment has been added by student ${data.sender.name} on the article "${data.title}".`
+                : `Your submitted article titled "${data.title}" has received feedback from your Faculty's Marketing Coordinator.`
+            }
           </p>
 
           <div style="text-align: center;">

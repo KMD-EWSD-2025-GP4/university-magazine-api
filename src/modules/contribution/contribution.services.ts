@@ -230,7 +230,15 @@ export async function getContribution(
       currentUser.facultyId !== contributionData[0].facultyId
     ) {
       throw new ForbiddenError(
-        'You do not have enough permission to view this contribution',
+        'Only selected contributions from their own faculty can be viewed by guests',
+      );
+    }
+  }
+
+  if (currentUser.role === 'marketing_manager') {
+    if (contributionData[0].status !== 'selected') {
+      throw new ForbiddenError(
+        'Only selected contributions can be viewed by marketing managers',
       );
     }
   }
@@ -288,6 +296,9 @@ export async function getContribution(
   // The assumption here is the a year starts at 1st of January and ends at 31st of December
   const academicYearString = `${new Date(year.startDate).getFullYear()}-${+new Date(year.endDate).getFullYear() + 1}`;
 
+  // Increment view count
+  // await incrementContributionViewCount(contributionId).catch(logger.error);
+
   return {
     success: true,
     data: {
@@ -324,6 +335,12 @@ export async function updateContribution(
 
   if (contributionData.length === 0) {
     throw new ValidationError('Contribution not found');
+  }
+
+  if (contributionData[0].status !== 'pending') {
+    throw new ValidationError(
+      `This contribution can no longer be updated since it is already ${contributionData[0].status}`,
+    );
   }
 
   // Check if academic year still accepts updates
@@ -715,6 +732,17 @@ export async function createComment(
     if (contributionData.length === 0)
       throw new ValidationError('Contribution not found');
 
+    // Check if there are any existing comments
+    const existingComments = await db
+      .select()
+      .from(comment)
+      .where(eq(comment.contributionId, contributionId));
+
+    // If student is trying to write the first comment, prevent it
+    if (currentUser.role === 'student' && existingComments.length === 0) {
+      throw new ValidationError('Students cannot write the first comment');
+    }
+
     // add comment
     const [newComment] = await db
       .insert(comment)
@@ -726,30 +754,43 @@ export async function createComment(
       .returning();
 
     if (newComment) {
-      // send email to student
-      const [student] = await db
+      // If comment is from student, send email to marketing coordinator
+      // If comment is from marketing coordinator, send email to student
+      const recipientRole =
+        currentUser.role === 'student' ? 'marketing_coordinator' : 'student';
+
+      // Get the recipient based on role
+      const [recipient] = await db
         .select()
         .from(user)
-        .where(eq(user.id, contributionData[0].studentId))
+        .where(
+          recipientRole === 'student'
+            ? eq(user.id, contributionData[0].studentId)
+            : and(
+                eq(user.facultyId, contributionData[0].facultyId),
+                eq(user.role, 'marketing_coordinator'),
+              ),
+        )
         .limit(1);
 
-      if (student) {
+      if (recipient) {
         const emailData = {
           title: contributionData[0].title,
           contributionId: contributionData[0].id,
-          student: {
-            name: student.name!,
-            email: student.email!,
+          recipient: {
+            name: recipient.name!,
+            email: recipient.email!,
           },
-          marketingCoordinator: {
+          sender: {
             name: currentUser.name!,
+            role: currentUser.role as 'student' | 'marketing_coordinator',
           },
         };
-        logger.info(`Sending email to ${student.email}`);
-        // Send email notification to faculty's marketing coordinator
+
+        logger.info(`Sending email to ${recipient.email}`);
         const result = await sendEmail({
-          to: student.email,
-          subject: '🎉 New Comment on your Contribution',
+          to: recipient.email,
+          subject: '🎉 New Comment on Contribution',
           html: newCommentEmailTemplate(emailData),
         });
         logger.info(`Result: ${JSON.stringify(result)}`);
@@ -757,6 +798,14 @@ export async function createComment(
           logger.error(`Error sending email: ${result.error}`);
         }
       }
+    }
+
+    // update the contribution feedback_given status for analytics
+    if (currentUser.role !== 'student' && existingComments.length === 0) {
+      await db
+        .update(contribution)
+        .set({ feedbackGiven: true })
+        .where(eq(contribution.id, contributionId));
     }
 
     return {
@@ -1289,4 +1338,16 @@ export async function marketingManagerContributorsReport(): Promise<{
     academicYears,
     totalUniqueContributors,
   };
+}
+
+export async function incrementContributionViewCount(
+  contributionId: string,
+): Promise<void> {
+  await db
+    .update(contribution)
+    .set({
+      viewCount: sql`${contribution.viewCount} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(eq(contribution.id, contributionId));
 }

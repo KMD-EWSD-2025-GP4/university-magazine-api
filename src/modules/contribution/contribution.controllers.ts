@@ -10,6 +10,7 @@ import {
   listAllContributions,
   updateContributionStatus,
   downloadSelectedContributions,
+  incrementContributionViewCount,
   listFacultySelectedContributions,
   marketingManagerContributionsReport,
   marketingManagerContributorsReport,
@@ -139,6 +140,19 @@ export async function listAllContributionsHandler(
       req.user.role!,
     );
     res.send(contributions);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+export async function incrementViewCountHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const { id } = req.params as { id: string };
+    await incrementContributionViewCount(id);
+    res.status(200).send({ success: true });
   } catch (error) {
     handleError(error, req, res);
   }

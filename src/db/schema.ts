@@ -8,6 +8,7 @@ import {
   date,
   integer,
   unique,
+  boolean,
 } from 'drizzle-orm/pg-core';
 
 export const userRolesEnum = pgEnum('user_roles', [
@@ -143,6 +144,7 @@ export const contribution = pgTable(
     lastUpdated: timestamp('last_updated', { withTimezone: true }).defaultNow(),
     status: contributionStatusEnum('status').notNull().default('pending'),
     viewCount: integer('view_count').notNull().default(0),
+    feedbackGiven: boolean('feedback_given').notNull().default(false),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },

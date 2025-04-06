@@ -57,7 +57,7 @@ export const listContributionsJSONSchema = {
   querystring: zodToJsonSchema(paginationSchema, 'paginationSchema'),
 };
 
-const createCommentSchema = z.object({ comment: z.string() });
+const createCommentSchema = z.object({ comment: z.string().min(1) });
 
 export type CreateCommentSchema = z.infer<typeof createCommentSchema>;
 
