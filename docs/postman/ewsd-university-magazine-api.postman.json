@@ -1227,9 +1227,9 @@
 							],
 							"query": [
 								{
-									"key": "cursor",
-									"value": "MjAyNS0wMy0wMlQwODo0MjozNS42ODlaQDE3NDA5MDU2NTY2ODM=",
-									"disabled": true
+									"key": "academicYearId",
+									"value": "f4698433-5000-4915-b316-5f4c489cc38",
+									"disabled": false
 								}
 							]
 						},
