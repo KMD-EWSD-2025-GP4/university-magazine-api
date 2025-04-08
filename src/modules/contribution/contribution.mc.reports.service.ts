@@ -35,14 +35,10 @@ export async function getContributorsAndContributions(
   facultyId: string,
   academicYearId?: string,
 ) {
-  // If no academicYearId provided, get the last academic year
-  if (!academicYearId) {
-    const [lastAcademicYear] = await db
-      .select()
-      .from(academicYear)
-      .orderBy(desc(academicYear.endDate))
-      .limit(1);
-    academicYearId = lastAcademicYear.id;
+  const whereConditions = [eq(contribution.facultyId, facultyId)];
+
+  if (academicYearId) {
+    whereConditions.push(eq(contribution.academicYearId, academicYearId));
   }
 
   const [result] = await db
@@ -52,17 +48,10 @@ export async function getContributorsAndContributions(
       facultyName: sql<string>`(SELECT name FROM faculties WHERE id = ${facultyId})`,
     })
     .from(contribution)
-    .where(
-      and(
-        eq(contribution.facultyId, facultyId),
-        eq(contribution.academicYearId, academicYearId),
-      ),
-    );
+    .where(and(...whereConditions))
+    .groupBy(contribution.academicYearId);
 
-  return {
-    academicYearId,
-    ...result,
-  };
+  return result;
 }
 
 export async function getYearlyStats(facultyId: string) {
