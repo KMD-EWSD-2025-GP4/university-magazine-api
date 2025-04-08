@@ -1,4 +1,4 @@
-import { eq, sql, asc, desc, and, isNull } from 'drizzle-orm';
+import { eq, sql, asc, desc, and, isNull, SQL } from 'drizzle-orm';
 
 import {
   user,
@@ -35,10 +35,13 @@ export async function getContributorsAndContributions(
   facultyId: string,
   academicYearId?: string,
 ) {
-  const whereConditions = [eq(contribution.facultyId, facultyId)];
+  let whereConditions = eq(contribution.facultyId, facultyId);
 
   if (academicYearId) {
-    whereConditions.push(eq(contribution.academicYearId, academicYearId));
+    whereConditions = and(
+      eq(contribution.academicYearId, academicYearId),
+      eq(contribution.facultyId, facultyId),
+    ) as SQL;
   }
 
   const [result] = await db
@@ -48,8 +51,7 @@ export async function getContributorsAndContributions(
       facultyName: sql<string>`(SELECT name FROM faculties WHERE id = ${facultyId})`,
     })
     .from(contribution)
-    .where(and(...whereConditions))
-    .groupBy(contribution.academicYearId);
+    .where(whereConditions);
 
   return result;
 }
@@ -70,8 +72,7 @@ export async function getYearlyStats(facultyId: string) {
       ),
     )
     .groupBy(academicYear.id)
-    .orderBy(desc(academicYear.startDate))
-    .limit(6);
+    .orderBy(desc(academicYear.startDate));
 
   return {
     data: stats.map((stat) => ({
