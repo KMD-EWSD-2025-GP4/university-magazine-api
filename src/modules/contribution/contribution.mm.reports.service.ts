@@ -2,6 +2,7 @@ import { eq, sql, desc } from 'drizzle-orm';
 
 import { db } from '../../db';
 import { faculty, contribution, academicYear } from '../../db/schema';
+import { formatAcademicYearString } from '../../utils/formatters';
 
 export async function marketingManagerContributionsReport(): Promise<{
   academicYears: {
@@ -61,12 +62,10 @@ export async function marketingManagerContributionsReport(): Promise<{
     totalContributions += row.count;
 
     // Format academic year as "YYYY-YYYY"
-    const startYear = new Date(row.academicYearStart).getFullYear();
-    const endYear = new Date(row.academicYearEnd).getFullYear();
-    const academicYearString =
-      startYear === endYear
-        ? `${startYear}-${endYear + 1}`
-        : `${startYear}-${endYear}`;
+    const academicYearString = formatAcademicYearString(
+      new Date(row.academicYearStart),
+      new Date(row.academicYearEnd),
+    );
 
     // Get or create academic year entry
     if (!academicYearsMap.has(row.academicYearId)) {
@@ -163,14 +162,10 @@ export async function marketingManagerContributorsReport(): Promise<{
   // Process query results and organize by academic year and faculty
   for (const row of uniqueContributorsByFaculty) {
     // Format academic year as "YYYY-YYYY"
-    const startYear = new Date(row.academicYearStart).getFullYear();
-    const endYear = new Date(row.academicYearEnd).getFullYear();
-    // if endYear is equal to startYear, add 1 to endYear
-    // to avoid having the same year twice
-    const academicYearString =
-      startYear === endYear
-        ? `${startYear}-${endYear + 1}`
-        : `${startYear}-${endYear}`;
+    const academicYearString = formatAcademicYearString(
+      new Date(row.academicYearStart),
+      new Date(row.academicYearEnd),
+    );
 
     // Get or create academic year entry
     if (!academicYearsMap.has(row.academicYearId)) {

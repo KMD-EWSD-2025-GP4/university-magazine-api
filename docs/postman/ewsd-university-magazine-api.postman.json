@@ -1582,6 +1582,48 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Most Viewed Contributions (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/contribution/most-viewed",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contribution",
+								"most-viewed"
+							],
+							"query": [
+								{
+									"key": "academicYearId",
+									"value": "49a14b62-7076-42c1-a4c2-b08f264723fd",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get the most viewed contributions. By default, it returns the top 5 most viewed contributions from the current academic year. You can optionally filter by academic year ID and change the limit."
+					},
+					"response": []
 				}
 			],
 			"auth": {

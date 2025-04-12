@@ -11,6 +11,7 @@ import {
   updateContributionStatus,
   downloadSelectedContributions,
   incrementContributionViewCount,
+  getMostViewedContributions,
   listFacultySelectedContributions,
 } from './contribution.services';
 
@@ -293,6 +294,28 @@ export async function marketingCoordinatorUncommentedContributionsHandler(
       academicYearId,
     );
     res.send(contributions);
+  } catch (error) {
+    handleError(error, req, res);
+  }
+}
+
+/**
+ * Handler for retrieving the most viewed contributions
+ * Optional academicYearId query parameter can be provided to filter by a specific academic year
+ */
+export async function getMostViewedContributionsHandler(
+  req: FastifyRequest,
+  res: FastifyReply,
+): Promise<void> {
+  try {
+    const { academicYearId, limit } = req.query as MCStatisticsQuerySchema & {
+      limit?: number;
+    };
+    const contributions = await getMostViewedContributions(
+      academicYearId,
+      limit || 5,
+    );
+    res.send({ items: contributions });
   } catch (error) {
     handleError(error, req, res);
   }

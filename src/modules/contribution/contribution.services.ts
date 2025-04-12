@@ -32,6 +32,7 @@ import {
 import { logger } from '../../utils/logger';
 import { generatePresignedDownloadUrl } from '../../utils/s3';
 import { ValidationError, ForbiddenError } from '../../utils/errors';
+import { formatAcademicYearString } from '../../utils/formatters';
 
 type contributionAssetType = {
   contributionId: string;
@@ -292,9 +293,10 @@ export async function getContribution(
     .where(eq(academicYear.id, contributionData[0].academicYearId))
     .limit(1);
 
-  // To construct for example: 2025-2026
-  // The assumption here is the a year starts at 1st of January and ends at 31st of December
-  const academicYearString = `${new Date(year.startDate).getFullYear()}-${+new Date(year.endDate).getFullYear() + 1}`;
+  const academicYearString = formatAcademicYearString(
+    new Date(year.startDate),
+    new Date(year.endDate),
+  );
 
   // Increment view count
   // await incrementContributionViewCount(contributionId).catch(logger.error);
@@ -468,9 +470,10 @@ export async function listMyContributions(
         .where(eq(academicYear.id, item.academicYearId))
         .limit(1);
 
-      const startYear = new Date(year.startDate).getFullYear();
-      const endYear = new Date(year.endDate).getFullYear();
-      const academicYearString = `${startYear}-${+endYear + 1}`;
+      const academicYearString = formatAcademicYearString(
+        new Date(year.startDate),
+        new Date(year.endDate),
+      );
 
       return {
         ...item,
@@ -576,9 +579,10 @@ export async function listFacultySelectedContributions(
         .where(eq(academicYear.id, item.contribution.academicYearId))
         .limit(1);
 
-      const startYear = new Date(year.startDate).getFullYear();
-      const endYear = new Date(year.endDate).getFullYear();
-      const academicYearString = `${startYear}-${+endYear + 1}`;
+      const academicYearString = formatAcademicYearString(
+        new Date(year.startDate),
+        new Date(year.endDate),
+      );
 
       return {
         ...item,
@@ -694,9 +698,10 @@ export async function listAllContributions(
         .where(eq(faculty.id, item.facultyId))
         .limit(1);
 
-      const startYear = new Date(year.startDate).getFullYear();
-      const endYear = new Date(year.endDate).getFullYear();
-      const academicYearString = `${startYear}-${+endYear + 1}`;
+      const academicYearString = formatAcademicYearString(
+        new Date(year.startDate),
+        new Date(year.endDate),
+      );
 
       const baseResult = {
         ...item,
@@ -1126,4 +1131,99 @@ export async function incrementContributionViewCount(
       updatedAt: new Date(),
     })
     .where(eq(contribution.id, contributionId));
+}
+
+/**
+ * Gets the most viewed contributions
+ * If academicYearId is provided, it filters by that academic year
+ * Otherwise, it finds and uses the current/latest academic year automatically
+ * @param academicYearId Optional academic year ID to filter contributions
+ * @param limit Optional number of contributions to return (default: 5)
+ */
+export async function getMostViewedContributions(
+  academicYearId?: string,
+  limit: number = 5,
+): Promise<
+  Array<
+    typeof contribution.$inferSelect & {
+      studentName: string;
+      facultyName: string;
+      academicYear: string;
+    }
+  >
+> {
+  let currentAcademicYearId = academicYearId;
+
+  // If no academicYearId is provided, find the current/latest academic year
+  if (!currentAcademicYearId) {
+    const currentDate = new Date();
+    const latestAcademicYear = await db
+      .select()
+      .from(academicYear)
+      .where(
+        and(
+          sql`${academicYear.startDate} <= ${currentDate}`,
+          sql`${academicYear.endDate} >= ${currentDate}`,
+        ),
+      )
+      .limit(1);
+
+    // If a current academic year is found, use it
+    if (latestAcademicYear.length > 0) {
+      currentAcademicYearId = latestAcademicYear[0].id;
+    } else {
+      // If no current academic year, find the most recent one
+      const mostRecentAcademicYear = await db
+        .select()
+        .from(academicYear)
+        .orderBy(desc(academicYear.endDate))
+        .limit(1);
+
+      if (mostRecentAcademicYear.length > 0) {
+        currentAcademicYearId = mostRecentAcademicYear[0].id;
+      }
+    }
+  }
+
+  // Base where condition - always filter for selected contributions
+  const whereConditions = [eq(contribution.status, 'selected')];
+
+  // Add academic year filter if we have an ID
+  if (currentAcademicYearId) {
+    whereConditions.push(
+      eq(contribution.academicYearId, currentAcademicYearId),
+    );
+  }
+
+  // Use a single join query to fetch all the required data at once
+  const results = await db
+    .select({
+      contribution: contribution,
+      studentName: user.name,
+      facultyName: faculty.name,
+      academicYearStartDate: academicYear.startDate,
+      academicYearEndDate: academicYear.endDate,
+    })
+    .from(contribution)
+    .innerJoin(user, eq(contribution.studentId, user.id))
+    .innerJoin(faculty, eq(contribution.facultyId, faculty.id))
+    .innerJoin(academicYear, eq(contribution.academicYearId, academicYear.id))
+    .where(and(...whereConditions))
+    .orderBy(desc(contribution.viewCount))
+    .limit(limit);
+
+  // Format the results to match the expected return type
+  return results.map((item) => {
+    const academicYearString = formatAcademicYearString(
+      new Date(item.academicYearStartDate),
+      new Date(item.academicYearEndDate),
+    );
+
+    return {
+      ...item.contribution,
+      studentName: item.studentName,
+      facultyName: item.facultyName,
+      academicYear: academicYearString,
+    };
+  });
 }

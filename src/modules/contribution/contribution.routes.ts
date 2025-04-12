@@ -10,6 +10,7 @@ import {
   listAllContributionsHandler,
   updateContributionStatusHandler,
   downloadSelectedContributionsHandler,
+  getMostViewedContributionsHandler,
   marketingCoordinatorGuestReportHandler,
   marketingCoordinatorYearlyStatsHandler,
   listFacultySelectedContributionsHandler,
@@ -212,5 +213,16 @@ export async function contributionRoutes(app: FastifyInstance): Promise<void> {
       preHandler: [checkRole(['marketing_coordinator'])],
     },
     marketingCoordinatorUncommentedContributionsHandler,
+  );
+
+  // New route for most viewed contributions
+  app.get(
+    '/most-viewed',
+    {
+      schema: mcStatisticsJSONSchema,
+      onRequest: [authenticateRequest],
+      preHandler: [checkRole(['admin'])],
+    },
+    getMostViewedContributionsHandler,
   );
 }

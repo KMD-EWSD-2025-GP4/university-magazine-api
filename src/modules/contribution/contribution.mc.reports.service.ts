@@ -8,6 +8,7 @@ import {
   academicYear,
 } from '../../db/schema';
 import { db } from '../../db';
+import { formatAcademicYearString } from '../../utils/formatters';
 
 export async function getGuestListByFaculty(facultyId: string) {
   return await db
@@ -76,7 +77,10 @@ export async function getYearlyStats(facultyId: string) {
 
   return {
     data: stats.map((stat) => ({
-      academicYear: `${new Date(stat.academicYear.startDate).getFullYear()}-${new Date(stat.academicYear.endDate).getFullYear() + 1}`,
+      academicYear: formatAcademicYearString(
+        new Date(stat.academicYear.startDate),
+        new Date(stat.academicYear.endDate),
+      ),
       contributors: stat.contributors,
       contributions: stat.contributions,
     })),
@@ -136,9 +140,10 @@ export async function getUncommentedContributions(
         .where(eq(faculty.id, item.contributions.facultyId))
         .limit(1);
 
-      const startYear = new Date(year.startDate).getFullYear();
-      const endYear = new Date(year.endDate).getFullYear();
-      const academicYearString = `${startYear}-${+endYear + 1}`;
+      const academicYearString = formatAcademicYearString(
+        new Date(year.startDate),
+        new Date(year.endDate),
+      );
 
       const createdAt = new Date(item.contributions.createdAt!);
       const dueDate = new Date(createdAt);
