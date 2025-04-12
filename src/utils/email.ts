@@ -144,3 +144,36 @@ export const updateContributionStatusEmailTemplate = (data: {
       </div>
     `;
 };
+
+export const newGuestRegistrationEmailTemplate = (data: {
+  facultyName: string;
+  guestEmail: string;
+  marketingCoordinator: {
+    name: string;
+    email: string;
+  };
+}): string => {
+  return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+        <h1 style="color: #000B41; text-align: center; margin-bottom: 30px; font-size: 28px;">New Guest Account Registered</h1>
+
+        <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <p style="color: #4A5568; line-height: 1.6; margin-bottom: 20px;">
+            Dear ${data.marketingCoordinator.name},
+          </p>
+
+          <p style="color: #4A5568; line-height: 1.6; margin-bottom: 30px;">
+            A new guest account has been successfully registered for the ${data.facultyName}.<br/>
+            Guest email: ${data.guestEmail}
+          </p>
+
+          <div style="text-align: center;">
+            <a href="${process.env.FRONTEND_URL}/d/guest-report"
+               style="display: inline-block; padding: 12px 24px; background-color: #002147; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; width: 100%; text-align: center; box-sizing: border-box;">
+               View Guest Accounts
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+};

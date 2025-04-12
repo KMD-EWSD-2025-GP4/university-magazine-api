@@ -19,6 +19,7 @@ export async function getGuestListByFaculty(facultyId: string) {
       lastLogin: user.lastLogin,
       browser: user.browser,
       totalLogins: user.totalLogins,
+      status: user.status,
       facultyName: sql<string>`(SELECT name FROM faculties WHERE id = ${facultyId})`,
     })
     .from(user)
