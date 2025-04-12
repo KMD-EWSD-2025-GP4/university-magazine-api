@@ -1143,15 +1143,7 @@ export async function incrementContributionViewCount(
 export async function getMostViewedContributions(
   academicYearId?: string,
   limit: number = 5,
-): Promise<
-  Array<
-    typeof contribution.$inferSelect & {
-      studentName: string;
-      facultyName: string;
-      academicYear: string;
-    }
-  >
-> {
+) {
   let currentAcademicYearId = academicYearId;
 
   // If no academicYearId is provided, find the current/latest academic year
@@ -1198,7 +1190,10 @@ export async function getMostViewedContributions(
   // Use a single join query to fetch all the required data at once
   const results = await db
     .select({
-      contribution: contribution,
+      id: contribution.id,
+      title: contribution.title,
+      viewCount: contribution.viewCount,
+      status: contribution.status,
       studentName: user.name,
       facultyName: faculty.name,
       academicYearStartDate: academicYear.startDate,
@@ -1220,7 +1215,10 @@ export async function getMostViewedContributions(
     );
 
     return {
-      ...item.contribution,
+      id: item.id,
+      title: item.title,
+      viewCount: item.viewCount,
+      status: item.status,
       studentName: item.studentName,
       facultyName: item.facultyName,
       academicYear: academicYearString,
