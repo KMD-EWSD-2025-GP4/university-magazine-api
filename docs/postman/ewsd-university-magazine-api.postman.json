@@ -355,7 +355,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/user/most-active",
+							"raw": "{{baseUrl}}/api/user/most-active?role=student",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -363,9 +363,17 @@
 								"api",
 								"user",
 								"most-active"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "student",
+									"description": "Optional. Filter users by role. Valid values: admin, student, guest, marketing_coordinator, marketing_manager",
+									"disabled": false
+								}
 							]
 						},
-						"description": "Get most active users (Admin only)"
+						"description": "Get most active users (Admin only). Now includes user role in the response and supports filtering by role using the optional 'role' query parameter. Remove the role parameter to get the most active users across all roles."
 					},
 					"response": []
 				},

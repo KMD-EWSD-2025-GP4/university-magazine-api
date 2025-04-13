@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { Role } from '../../types/roles';
 
 const registerUserBodySchema = z.object({
   email: z.string({
@@ -50,4 +51,27 @@ export type getUserByIdParamsSchema = z.infer<typeof getUserByIdParamsSchema>;
 
 export const getUserByIdJSONSchema = {
   params: zodToJsonSchema(getUserByIdParamsSchema, 'getUserByIdParamsSchema'),
+};
+
+const getMostActiveUsersQuerySchema = z.object({
+  role: z
+    .enum([
+      'admin',
+      'student',
+      'guest',
+      'marketing_coordinator',
+      'marketing_manager',
+    ])
+    .optional(),
+});
+
+export type getMostActiveUsersQuerySchema = z.infer<
+  typeof getMostActiveUsersQuerySchema
+>;
+
+export const getMostActiveUsersJSONSchema = {
+  querystring: zodToJsonSchema(
+    getMostActiveUsersQuerySchema,
+    'getMostActiveUsersQuerySchema',
+  ),
 };

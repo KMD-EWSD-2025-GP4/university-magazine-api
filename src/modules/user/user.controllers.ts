@@ -11,9 +11,11 @@ import {
   getUserByIdParamsSchema,
   loginUserBodySchema,
   registerUserBodySchema,
+  getMostActiveUsersQuerySchema,
 } from './user.schema';
 import { logger } from '../../utils/logger';
 import { handleError } from '../../utils/errors';
+import { Role } from '../../types/roles';
 
 export async function getCurrentUserHandler(
   request: FastifyRequest,
@@ -85,7 +87,8 @@ export async function getMostActiveUsersHandler(
   reply: FastifyReply,
 ) {
   try {
-    const users = await getMostActiveUsers();
+    const { role } = request.query as getMostActiveUsersQuerySchema;
+    const users = await getMostActiveUsers(role as Role | undefined);
     return reply.code(200).send(users);
   } catch (error) {
     handleError(error, request, reply);

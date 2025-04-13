@@ -3,6 +3,7 @@ import {
   getUserByIdJSONSchema,
   loginUserJSONSchema,
   registerUserJSONSchema,
+  getMostActiveUsersJSONSchema,
 } from './user.schema';
 import {
   loginUserHandler,
@@ -63,6 +64,7 @@ export async function userRoutes(app: FastifyInstance) {
     {
       onRequest: [authenticateRequest],
       preHandler: [checkRole(['admin'])],
+      schema: getMostActiveUsersJSONSchema,
     },
     getMostActiveUsersHandler,
   );

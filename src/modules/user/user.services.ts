@@ -282,7 +282,24 @@ export async function loginUser(input: loginUserBodySchema) {
   };
 }
 
-export async function getMostActiveUsers() {
+export async function getMostActiveUsers(role?: Role) {
+  if (role) {
+    return db
+      .select({
+        id: user.id,
+        email: user.email,
+        status: user.status,
+        totalLogins: user.totalLogins,
+        name: user.name,
+        facultyId: user.facultyId,
+        role: user.role,
+      })
+      .from(user)
+      .where(eq(user.role, role))
+      .orderBy(desc(user.totalLogins))
+      .limit(5);
+  }
+
   return db
     .select({
       id: user.id,
@@ -291,6 +308,7 @@ export async function getMostActiveUsers() {
       totalLogins: user.totalLogins,
       name: user.name,
       facultyId: user.facultyId,
+      role: user.role,
     })
     .from(user)
     .orderBy(desc(user.totalLogins))
