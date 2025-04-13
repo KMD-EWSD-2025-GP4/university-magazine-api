@@ -273,7 +273,8 @@ export async function getContribution(
       })
       .from(comment)
       .innerJoin(coordinator, eq(coordinator.id, comment.userId))
-      .where(eq(comment.contributionId, contributionId));
+      .where(eq(comment.contributionId, contributionId))
+      .orderBy(desc(comment.createdAt));
   }
 
   // Get student name
