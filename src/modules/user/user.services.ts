@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql, gt } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 import { db } from '../../db';
 import { faculty, loginAuditLog, user } from '../../db/schema';
@@ -12,10 +12,6 @@ import {
   UnauthorizedError,
 } from '../../utils/errors';
 import { Role } from '../../types/roles';
-import {
-  sendEmail,
-  newGuestRegistrationEmailTemplate,
-} from '../../utils/email';
 
 async function findUserByEmail(email: string) {
   // join user with faculty as a alias facultyName
@@ -166,34 +162,6 @@ export async function registerUser(input: registerUserBodySchema) {
       .returning();
     // do not return passwordHash
     const { passwordHash: _, ...userWithoutPassword } = result[0];
-
-    // Find marketing coordinator for the faculty
-    const marketingCoordinator = await db
-      .select({
-        name: user.name,
-        email: user.email,
-      })
-      .from(user)
-      .where(
-        and(
-          eq(user.facultyId, facultyId),
-          eq(user.role, 'marketing_coordinator'),
-        ),
-      )
-      .limit(1);
-
-    if (marketingCoordinator.length > 0) {
-      await sendEmail({
-        to: marketingCoordinator[0].email,
-        subject: 'New Guest Account Registered',
-        html: newGuestRegistrationEmailTemplate({
-          facultyName: existingFaculty[0].name,
-          guestEmail: email,
-          marketingCoordinator: marketingCoordinator[0],
-        }),
-      });
-    }
-
     return {
       user: userWithoutPassword,
       message: 'User registered successfully',
@@ -295,7 +263,7 @@ export async function getMostActiveUsers(role?: Role) {
         role: user.role,
       })
       .from(user)
-      .where(eq(user.role, role))
+      .where(and(eq(user.role, role), gt(user.totalLogins, 0)))
       .orderBy(desc(user.totalLogins))
       .limit(5);
   }
@@ -311,6 +279,7 @@ export async function getMostActiveUsers(role?: Role) {
       role: user.role,
     })
     .from(user)
+    .where(gt(user.totalLogins, 0))
     .orderBy(desc(user.totalLogins))
     .limit(5);
 }
