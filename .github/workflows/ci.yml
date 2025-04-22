@@ -48,20 +48,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Simple Ansible deployment
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to server
-        run: |
-          scp deploy-api.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/devops/university-magazine/
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "cd ~/devops/university-magazine && \
-          GITHUB_ACTOR='${{ github.actor }}' \
-          GITHUB_TOKEN='${{ secrets.GITHUB_TOKEN }}' \
-          ansible-playbook deploy-api.yml"
+      # Trigger Render deployment with api call get request for image backed deployment with tag latest
+      - name: Trigger Render Deployment
         env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl "${RENDER_DEPLOY_HOOK_URL}"

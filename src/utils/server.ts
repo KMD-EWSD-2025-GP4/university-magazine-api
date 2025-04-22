@@ -18,7 +18,11 @@ export async function createServer(): Promise<FastifyInstance> {
   server.register(cors, {
     credentials: true,
     origin: process.env.FRONTEND_URL
-      ? [process.env.FRONTEND_URL, 'http://localhost:5173']
+      ? [
+          process.env.FRONTEND_URL,
+          'http://localhost:5173',
+          'https://uni-mag.netlify.app',
+        ]
       : ['http://localhost:5173'],
   });
 
