@@ -12,6 +12,10 @@ import {
   UnauthorizedError,
 } from '../../utils/errors';
 import { Role } from '../../types/roles';
+import {
+  sendEmail,
+  newGuestRegistrationEmailTemplate,
+ } from '../../utils/email';
 
 async function findUserByEmail(email: string) {
   // join user with faculty as a alias facultyName
@@ -162,6 +166,34 @@ export async function registerUser(input: registerUserBodySchema) {
       .returning();
     // do not return passwordHash
     const { passwordHash: _, ...userWithoutPassword } = result[0];
+
+    // Find marketing coordinator for the faculty
+    const marketingCoordinator = await db
+      .select({
+        name: user.name,
+        email: user.email,
+      })
+      .from(user)
+      .where(
+        and(
+          eq(user.facultyId, facultyId),
+          eq(user.role, 'marketing_coordinator'),
+        ),
+      )
+      .limit(1);
+
+    if (marketingCoordinator.length > 0) {
+      await sendEmail({
+        to: marketingCoordinator[0].email,
+        subject: 'New Guest Account Registered',
+        html: newGuestRegistrationEmailTemplate({
+          facultyName: existingFaculty[0].name,
+          guestEmail: email,
+          marketingCoordinator: marketingCoordinator[0],
+        }),
+      });
+    }
+
     return {
       user: userWithoutPassword,
       message: 'User registered successfully',
