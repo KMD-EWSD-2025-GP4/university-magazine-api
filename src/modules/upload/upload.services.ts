@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { env } from '../../config/env';
 
 import { generatePresignedUploadUrl } from '../../utils/s3';
 
@@ -12,6 +13,6 @@ export async function getUploadUrl(
 
   return {
     path: key,
-    url: await generatePresignedUploadUrl('ewsd-bucket', key),
+    url: await generatePresignedUploadUrl(env.AWS_BUCKET_NAME, key),
   };
 }

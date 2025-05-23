@@ -168,7 +168,10 @@ export async function createContribution(
     const assetsWithUrls = await Promise.all(
       assets.map(async (asset) => ({
         ...asset,
-        url: await generatePresignedDownloadUrl('ewsd-bucket', asset.filePath),
+        url: await generatePresignedDownloadUrl(
+          env.AWS_BUCKET_NAME,
+          asset.filePath,
+        ),
       })),
     );
 
@@ -253,7 +256,10 @@ export async function getContribution(
   const assetsWithUrls = await Promise.all(
     assets.map(async (asset) => ({
       ...asset,
-      url: await generatePresignedDownloadUrl('ewsd-bucket', asset.filePath),
+      url: await generatePresignedDownloadUrl(
+        env.AWS_BUCKET_NAME,
+        asset.filePath,
+      ),
     })),
   );
 
@@ -450,7 +456,7 @@ export async function listMyContributions(
         assets.map(async (asset) => ({
           ...asset,
           url: await generatePresignedDownloadUrl(
-            'ewsd-bucket',
+            env.AWS_BUCKET_NAME,
             asset.filePath,
           ),
         })),
@@ -565,7 +571,7 @@ export async function listFacultySelectedContributions(
         assets.map(async (asset) => ({
           ...asset,
           url: await generatePresignedDownloadUrl(
-            'ewsd-bucket',
+            env.AWS_BUCKET_NAME,
             asset.filePath,
           ),
         })),
@@ -672,7 +678,7 @@ export async function listAllContributions(
         assets.map(async (asset) => ({
           ...asset,
           url: await generatePresignedDownloadUrl(
-            'ewsd-bucket',
+            env.AWS_BUCKET_NAME,
             asset.filePath,
           ),
         })),
